@@ -5,6 +5,7 @@ import torch.nn as nn
 import pytorch_lightning as pl
 
 from .transformer import TransformerModel
+from torch.utils.tensorboard import SummaryWriter
 
 
 class LitTransformer(pl.LightningModule):
@@ -100,9 +101,16 @@ class LitTransformer(pl.LightningModule):
         x, gt, mask = batch
         pred = self(x, mask)
 
-        loss = self.loss_fn(pred, gt)
+        logger: SummaryWriter = self.logger.experiment
+        batch_size = self.trainer.test_dataloaders.batch_size
 
-        self.log("test_loss", loss)
+        for idx in range(pred.size(0)):
+            for dim in range(pred.size(1)):
+                logger.add_scalars(
+                    f"test/force_{dim}",
+                    {"pred": pred[idx, dim], "gt": gt[idx, dim]},
+                    global_step=batch_idx * batch_size + idx
+                )
 
     def configure_optimizers(self):
         """Configure optimizer."""
