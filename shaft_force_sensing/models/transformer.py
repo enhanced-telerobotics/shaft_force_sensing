@@ -81,7 +81,7 @@ class TransformerModel(nn.Module):
         data_std=None,
     ):
         """Initialize the transformer model."""
-        super(TransformerModel, self).__init__()
+        super().__init__()
 
         self.input_proj = nn.Linear(input_size, d_model)
         self.pos_encoder = PositionalEncoding(d_model)
@@ -99,13 +99,11 @@ class TransformerModel(nn.Module):
         )
 
         # Shared intermediate representation
-        self.shared_fc = nn.Sequential(
+        self.head = nn.Sequential(
             nn.Linear(d_model, fc_hidden_size),
             nn.ReLU(),
+            nn.Linear(fc_hidden_size, force_output_size)
         )
-
-        # Force regression head
-        self.force_head = nn.Linear(fc_hidden_size, force_output_size)
 
         # Register dataset distribution as buffer
         if data_mean is not None:
@@ -114,25 +112,24 @@ class TransformerModel(nn.Module):
         if data_std is not None:
             self.register_buffer("data_std", torch.from_numpy(data_std))
 
-    def forward(self, x):
+    def forward(self, x, mask):
         """Forward pass of the model.
         
         Parameters
         ----------
         x : torch.Tensor
             Input tensor of shape [batch, seq_len, input_size]
+        mask : torch.Tensor
+            Mask tensor of shape [batch, seq_len] (True for padding, False for valid data)
         
         Returns
         -------
         torch.Tensor
-            Force predictions of shape [batch, 3]
+            Force predictions of shape [batch, output_size]
         """
         x = self.input_proj(x)
         x = self.pos_encoder(x)
-        x = self.transformer_encoder(x)
-        last_step = x[:, -1, :]  # [batch, d_model]
+        x = self.transformer_encoder(x, src_key_padding_mask=mask)
+        x = self.head(x[:, -1, :])
 
-        shared = self.shared_fc(last_step)
-        force_out = self.force_head(shared)
-
-        return force_out
+        return x

@@ -1,84 +1,89 @@
 """Dataset classes for force sensing models."""
 
+from pathlib import Path
 import numpy as np
+import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
+from sklearn.preprocessing import StandardScaler
 
-class WindowDataset(Dataset):
-    """Sliding window dataset for time series force prediction.
-    
-    Parameters
-    ----------
-    inputs : np.ndarray
-        Input features of shape [T, input_size]
-    force_targets : np.ndarray
-        Target force values of shape [T, 3]
-    lookback : int, optional
-        Number of timesteps of history for each sample (default: 150)
-    stride : int, optional
-        Step size when moving the window forward (default: 3)
-    normalize : bool, optional
-        Whether to normalize targets (default: True)
-    f_mean : np.ndarray, optional
-        Pre-computed mean for normalization
-    f_std : np.ndarray, optional
-        Pre-computed std for normalization
+
+class ForceSensingDataset(Dataset):
+    """Dataset for shaft force sensing. 
+
+    Args:
+        data_path (Path): Path to the CSV data file.
+        stride (int): Stride for downsampling the data.
+        sequence_length (int): Length of input sequences for the model.
+        nomalizer (StandardScaler, optional): Pre-fitted scaler for normalizing targets. If None, a new scaler will be fitted on the data.
     """
 
-    def __init__(
-        self,
-        inputs,
-        force_targets,
-        lookback=150,
-        stride=3,
-        normalize=True,
-        f_mean=None,
-        f_std=None,
-    ):
-        """Initialize the dataset."""
-        self.inputs = inputs
-        self.lookback = lookback
-        self.stride = stride
+    def __init__(self,
+                 data_path: Path,
+                 input_cols: list,
+                 target_cols: list,
+                 stride: int = 1,
+                 sequence_length: int = 100,
+                 nomalizer: StandardScaler = None):
+        self.sequence_length = sequence_length
 
-        # Compute stats for normalization
-        if normalize:
-            if f_mean is None and f_std is None:
-                self.force_mean = force_targets.mean(axis=0)
-                self.force_std = force_targets.std(axis=0) + 1e-8
-            else:
-                self.force_mean = f_mean
-                self.force_std = f_std
+        # Load data
+        data = pd.read_csv(data_path)
 
-            self.force_targets = (force_targets - self.force_mean) / self.force_std
+        # Downsample by stride
+        self.indices = np.arange(0, len(data), stride)
+
+        # Split into input and target
+        self.X = data[input_cols].to_numpy()
+        self.y = data[target_cols].to_numpy()
+
+        # Normalize targets
+        if nomalizer is not None:
+            self.y = nomalizer.transform(self.y)
         else:
-            self.force_mean = np.zeros(force_targets.shape[1])
-            self.force_std = np.ones(force_targets.shape[1])
-            self.force_targets = force_targets
+            nomalizer = StandardScaler()
+            self.y = nomalizer.fit_transform(self.y)
 
-        # Number of valid windows
-        self.length = (inputs.shape[0] - lookback) // stride + 1
+        self.nomalizer = nomalizer
 
-    def __len__(self):
-        """Return dataset length."""
-        return self.length
+    def __len__(self) -> int:
+        return len(self.indices)
 
     def __getitem__(self, idx):
-        """Get a sample from the dataset.
-        
-        Returns
-        -------
-        tuple
-            (input_tensor, target_tensor) where input_tensor is [lookback, input_size]
-            and target_tensor is [3]
         """
-        start = idx * self.stride
-        end = start + self.lookback
+        Returns:
+            X_seq (torch.Tensor): Input sequence of shape (sequence_length, input_size)
+            y (torch.Tensor): Target of shape (target_size, )
+            mask (torch.Tensor): Mask indicating valid data points (True for padding, False for valid data) of shape (sequence_length,)
+        """
+        data_idx = self.indices[idx]
+        start = data_idx - self.sequence_length + 1
 
-        x = self.inputs[start:end]  # [lookback, input_size]
-        force_y = self.force_targets[end - 1]
+        if start < 0:
+            pad_left = -start
+            valid_start = 0
+        else:
+            pad_left = 0
+            valid_start = start
+
+        X_seq = self.X[valid_start:data_idx + 1]
+        y_target = self.y[data_idx]
+
+        if pad_left > 0:
+            X_pad = np.zeros((pad_left, X_seq.shape[1]), dtype=X_seq.dtype)
+            X_seq = np.vstack([X_pad, X_seq])
+
+        if X_seq.shape[0] != self.sequence_length:
+            X_seq = X_seq[-self.sequence_length:]
+            pad_left = max(0, self.sequence_length - (data_idx + 1))
+
+        mask = np.zeros(self.sequence_length, dtype=bool)
+        if pad_left > 0:
+            mask[:pad_left] = True
 
         return (
-            torch.tensor(x, dtype=torch.float32),
-            torch.tensor(force_y, dtype=torch.float32),
+            torch.as_tensor(X_seq, dtype=torch.float32),
+            torch.as_tensor(y_target, dtype=torch.float32),
+            torch.as_tensor(mask, dtype=torch.bool),
         )
