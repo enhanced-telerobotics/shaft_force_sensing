@@ -58,53 +58,51 @@ class LitTransformer(pl.LightningModule):
             data_std=data_std,
         )
 
-        self.force_loss_fn = nn.MSELoss()
+        self.loss_fn = nn.MSELoss()
         self.lr = lr
         self.l1_lambda = l1_lambda
 
-    def forward(self, x):
+    def forward(self, x, mask=None):
         """Forward pass."""
-        return self.model(x)
+        return self.model(x, mask)
 
     def training_step(self, batch, batch_idx):
         """Training step."""
-        x, force_y = batch
-        force_pred = self(x)
+        x, gt, mask = batch
+        pred = self(x, mask)
 
-        force_loss = self.force_loss_fn(force_pred, force_y)
+        mse_loss = self.loss_fn(pred, gt)
 
         # L1 regularization
         l1_reg = sum(torch.sum(torch.abs(p)) for p in self.parameters())
 
-        loss = force_loss + self.l1_lambda * l1_reg
+        loss = mse_loss + self.l1_lambda * l1_reg
 
-        self.log("train_loss", loss, prog_bar=True)
-        self.log("train_force_loss", force_loss)
-        self.log("train_l1_reg", self.l1_lambda * l1_reg)
+        self.log("train_loss", loss, prog_bar=True,
+                 logger=True, on_epoch=True, on_step=True)
+        self.log("train_mse_loss", mse_loss)
+        self.log("train_l1_reg_loss", self.l1_lambda * l1_reg)
 
         return loss
 
     def validation_step(self, batch, batch_idx):
         """Validation step."""
-        x, force_y = batch
-        force_pred = self(x)
+        x, gt, mask = batch
+        pred = self(x, mask)
 
-        force_loss = self.force_loss_fn(force_pred, force_y)
-        loss = force_loss
+        loss = self.loss_fn(pred, gt)
 
-        self.log("val_loss", loss, prog_bar=True)
-        self.log("val_force_loss", force_loss)
+        self.log("val_loss", loss, prog_bar=True,
+                 logger=True, on_epoch=True, on_step=True)
 
     def test_step(self, batch, batch_idx):
         """Test step."""
-        x, force_y = batch
-        force_pred = self(x)
+        x, gt, mask = batch
+        pred = self(x, mask)
 
-        force_loss = self.force_loss_fn(force_pred, force_y)
-        loss = force_loss
+        loss = self.loss_fn(pred, gt)
 
         self.log("test_loss", loss)
-        self.log("test_force_loss", force_loss)
 
     def configure_optimizers(self):
         """Configure optimizer."""
