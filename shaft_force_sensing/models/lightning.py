@@ -18,7 +18,8 @@ class LitSequenceModel(pl.LightningModule):
         lr=3e-4,
         weight_decay=1e-4,
         data_mean=None,
-        data_std=None
+        data_std=None,
+        **kwargs
     ):
         """
         Initialize the Lightning module for shaft force sensing model.
@@ -27,6 +28,7 @@ class LitSequenceModel(pl.LightningModule):
             d_output (int, optional): Dimension of output features. Defaults to 3.
             d_model (int, optional): Dimension of the model/hidden layers. Defaults to 64.
             lr (float, optional): Learning rate for the optimizer. Defaults to 3e-4.
+            weight_decay (float, optional): Weight decay for the optimizer. Defaults to 1e-4.
             data_mean (np.ndarray, optional): Mean values for dataset normalization. 
                 If provided, registered as a buffer. Defaults to None.
             data_std (np.ndarray, optional): Standard deviation values for dataset normalization. 
