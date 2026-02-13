@@ -60,7 +60,7 @@ def prepare_datasets(
     data_root: str,
     input_cols: list,
     target_cols: list
-) -> Tuple[ForceSensingDataset, ForceSensingDataset]:
+) -> Tuple[ForceSensingDataset, ForceSensingDataset, StandardScaler]:
     data_paths = sorted(Path(data_root).rglob("*.csv"))
 
     groups = defaultdict(list)
@@ -72,13 +72,13 @@ def prepare_datasets(
     train_paths.pop(3)
     train_paths.pop(2)
 
-    golbal_scaler = StandardScaler()
+    scaler = StandardScaler()
     forces = []
     for p in tqdm(train_paths):
         data = np.loadtxt(p, delimiter=",", skiprows=1)
         forces.append(data[:, -3:])
     forces = np.concatenate(forces, axis=0)
-    golbal_scaler.fit(forces)
+    scaler.fit(forces)
 
     train_sets = defaultdict(list)
     for p in tqdm(train_paths):
@@ -90,7 +90,7 @@ def prepare_datasets(
             input_cols,
             target_cols,
             stride,
-            nomalizer=golbal_scaler)
+            nomalizer=scaler)
         train_sets[p.parent.name].append(dataset)
 
     train_set = ConcatDataset(
@@ -100,4 +100,4 @@ def prepare_datasets(
     val_size = len(train_set) - train_size
     train_set, val_set = random_split(train_set, [train_size, val_size])
 
-    return train_set, val_set
+    return train_set, val_set, scaler
