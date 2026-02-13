@@ -30,11 +30,11 @@ def train_model(train_loader, val_loader, f_mean, f_std, input_cols, max_epochs=
         Trained model
     """
     model = LitTransformer(
-        input_size=len(input_cols),
+        d_input=len(input_cols),
         d_model=128,
         nhead=8,
         num_layers=3,
-        force_output_size=3,
+        d_output=3,
         lr=3e-4,
         data_mean=f_mean,
         data_std=f_std,

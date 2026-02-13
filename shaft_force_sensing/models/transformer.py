@@ -51,46 +51,37 @@ class TransformerModel(nn.Module):
     
     Parameters
     ----------
-    input_size : int
+    d_input : int
         Number of input features
-    d_model : int
-        Dimension of the transformer model
-    nhead : int
-        Number of attention heads
-    num_layers : int
-        Number of transformer encoder layers
-    force_output_size : int, optional
+    d_output : int, optional
         Output dimension for force (default: 3)
-    fc_hidden_size : int, optional
-        Hidden size for fully connected layers (default: 64)
-    data_mean : np.ndarray, optional
-        Mean for data normalization
-    data_std : np.ndarray, optional
-        Standard deviation for data normalization
+    d_model : int, optional
+        Dimension of the transformer model (default: 64)
+    nhead : int, optional
+        Number of attention heads (default: 8)
+    num_layers : int, optional
+        Number of transformer encoder layers (default: 3)
     """
 
     def __init__(
         self,
-        input_size,
-        d_model,
-        nhead,
-        num_layers,
-        force_output_size=3,
-        fc_hidden_size=64,
-        data_mean=None,
-        data_std=None,
+        d_input,
+        d_output=3,
+        d_model=64,
+        nhead=8,
+        num_layers=3,
     ):
         """Initialize the transformer model."""
         super().__init__()
 
-        self.input_proj = nn.Linear(input_size, d_model)
+        self.input_proj = nn.Linear(d_input, d_model)
         self.pos_encoder = PositionalEncoding(d_model)
 
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=d_model,
             nhead=nhead,
             dim_feedforward=256,
-            dropout=0.0,
+            dropout=0.1,
             activation="relu",
             batch_first=True,
         )
@@ -100,17 +91,10 @@ class TransformerModel(nn.Module):
 
         # Shared intermediate representation
         self.head = nn.Sequential(
-            nn.Linear(d_model, fc_hidden_size),
+            nn.Linear(d_model, d_model),
             nn.ReLU(),
-            nn.Linear(fc_hidden_size, force_output_size)
+            nn.Linear(d_model, d_output)
         )
-
-        # Register dataset distribution as buffer
-        if data_mean is not None:
-            self.register_buffer("data_mean", torch.from_numpy(data_mean))
-
-        if data_std is not None:
-            self.register_buffer("data_std", torch.from_numpy(data_std))
 
     def forward(self, x, mask):
         """Forward pass of the model.
