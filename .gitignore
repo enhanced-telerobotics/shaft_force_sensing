@@ -1,7 +1,9 @@
 # Workspace
 data/
+logs
 logs/
 notebooks/
+slurm/output/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
