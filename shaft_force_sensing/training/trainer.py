@@ -83,7 +83,7 @@ if __name__ == "__main__":
     seed_everything(seed)
 
     # Prepare datasets and dataloaders
-    train_set, val_set = prepare_datasets(
+    train_set, val_set, scaler = prepare_datasets(
         os.getcwd(), i_cols, t_cols)
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
@@ -100,6 +100,8 @@ if __name__ == "__main__":
         d_input=len(i_cols),
         d_output=len(t_cols),
         d_hidden=args.get("hidden_size", 64),
+        data_mean=scaler.mean_,
+        data_std=scaler.scale_,
         **args
     )
 
