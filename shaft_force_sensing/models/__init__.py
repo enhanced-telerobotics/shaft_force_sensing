@@ -1,6 +1,6 @@
 """Model architectures and components."""
 
-from .transformer import TransformerModel, PositionalEncoding
-from .lightning import LitTransformer
+from .lightning import LitTransformer, LitLTC, LitSequenceModel
 
-__all__ = ["TransformerModel", "PositionalEncoding", "LitTransformer"]
+__all__ = ["LitTransformer",
+           "LitLTC",]

@@ -4,12 +4,10 @@ __version__ = "0.1.0"
 __author__ = "Erie Lab"
 
 from .data import ForceSensingDataset
-from .models import TransformerModel, PositionalEncoding, LitTransformer
-from .training import train_model
+from .models import LitTransformer, LitLTC
 
 __all__ = [
     "ForceSensingDataset",
-    "TransformerModel",
-    "PositionalEncoding",
     "LitTransformer",
+    "LitLTC",
 ]

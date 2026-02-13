@@ -3,86 +3,67 @@
 import torch
 import torch.nn as nn
 import pytorch_lightning as pl
-
-from .transformer import TransformerModel
 from torch.utils.tensorboard import SummaryWriter
 
+from .transformer import TransformerModel
+from .ltc import LTCModel
 
-class LitTransformer(pl.LightningModule):
-    """PyTorch Lightning module for Transformer-based force prediction.
-    
-    Parameters
-    ----------
-    input_size : int
-        Number of input features
-    d_model : int
-        Dimension of the transformer model
-    nhead : int
-        Number of attention heads
-    num_layers : int
-        Number of transformer encoder layers
-    force_output_size : int, optional
-        Output dimension for force (default: 3)
-    lr : float, optional
-        Learning rate (default: 3e-4)
-    l1_lambda : float, optional
-        L1 regularization coefficient (default: 1e-4)
-    data_mean : np.ndarray, optional
-        Mean for data normalization
-    data_std : np.ndarray, optional
-        Standard deviation for data normalization
-    """
 
+class LitSequenceModel(pl.LightningModule):
     def __init__(
         self,
-        input_size,
-        d_model,
-        nhead,
-        num_layers,
-        force_output_size=3,
+        d_input,
+        d_output=3,
+        d_model=64,
         lr=3e-4,
-        l1_lambda=1e-4,
+        weight_decay=1e-4,
         data_mean=None,
-        data_std=None,
+        data_std=None
     ):
-        """Initialize the Lightning module."""
+        """
+        Initialize the Lightning module for shaft force sensing model.
+        Args:
+            d_input (int): Dimension of input features.
+            d_output (int, optional): Dimension of output features. Defaults to 3.
+            d_model (int, optional): Dimension of the model/hidden layers. Defaults to 64.
+            lr (float, optional): Learning rate for the optimizer. Defaults to 3e-4.
+            data_mean (np.ndarray, optional): Mean values for dataset normalization. 
+                If provided, registered as a buffer. Defaults to None.
+            data_std (np.ndarray, optional): Standard deviation values for dataset normalization. 
+                If provided, registered as a buffer. Defaults to None.
+        """
         super().__init__()
         self.save_hyperparameters()
 
-        self.model = TransformerModel(
-            input_size,
-            d_model,
-            nhead,
-            num_layers,
-            force_output_size,
-            data_mean=data_mean,
-            data_std=data_std,
-        )
+        # Initialize model and optimizer parameters
+        self.d_input = d_input
+        self.d_output = d_output
+        self.d_model = d_model
+
+        self.lr = lr
+        self.weight_decay = weight_decay
 
         self.loss_fn = nn.MSELoss()
-        self.lr = lr
-        self.l1_lambda = l1_lambda
 
-    def forward(self, x, mask=None):
-        """Forward pass."""
-        return self.model(x, mask)
+        # Register dataset distribution as buffer
+        if data_mean is not None:
+            self.register_buffer("data_mean", torch.from_numpy(data_mean))
+
+        if data_std is not None:
+            self.register_buffer("data_std", torch.from_numpy(data_std))
+
+    def forward(self, x):
+        raise NotImplementedError
 
     def training_step(self, batch, batch_idx):
         """Training step."""
         x, gt, mask = batch
         pred = self(x, mask)
 
-        mse_loss = self.loss_fn(pred, gt)
+        loss = self.loss_fn(pred, gt)
 
-        # L1 regularization
-        l1_reg = sum(torch.sum(torch.abs(p)) for p in self.parameters())
-
-        loss = mse_loss + self.l1_lambda * l1_reg
-
-        self.log("train_loss", loss, prog_bar=True,
+        self.log("train/loss", loss, prog_bar=True,
                  logger=True, on_epoch=True, on_step=True)
-        self.log("train_mse_loss", mse_loss)
-        self.log("train_l1_reg_loss", self.l1_lambda * l1_reg)
 
         return loss
 
@@ -93,7 +74,7 @@ class LitTransformer(pl.LightningModule):
 
         loss = self.loss_fn(pred, gt)
 
-        self.log("val_loss", loss, prog_bar=True,
+        self.log("val/loss", loss, prog_bar=True,
                  logger=True, on_epoch=True, on_step=True)
 
     def test_step(self, batch, batch_idx):
@@ -114,4 +95,50 @@ class LitTransformer(pl.LightningModule):
 
     def configure_optimizers(self):
         """Configure optimizer."""
-        return torch.optim.Adam(self.parameters(), lr=self.lr)
+        return torch.optim.Adam(
+            self.parameters(),
+            lr=self.lr,
+            weight_decay=self.weight_decay
+        )
+
+
+class LitTransformer(LitSequenceModel):
+    def __init__(
+        self,
+        nhead=8,
+        num_layers=3,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+
+        self.model = TransformerModel(
+            d_input=self.d_input,
+            d_output=self.d_output,
+            d_model=self.d_model,
+            nhead=nhead,
+            num_layers=num_layers,
+        )
+
+    def forward(self, x, mask=None):
+        return self.model(x, mask)
+
+
+class LitLTC(LitSequenceModel):
+    def __init__(
+        self,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+
+        self.model = LTCModel(
+            d_input=self.d_input,
+            d_output=self.d_output,
+            d_hidden=self.d_model,
+        )
+
+        self._hidden_state = None
+
+    def forward(self, x, *args, **kwargs):
+        out, hidden = self.model(x, self._hidden_state)
+        # TODO: handle hidden state for LTC
+        return out
