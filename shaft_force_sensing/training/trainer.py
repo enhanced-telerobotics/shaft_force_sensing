@@ -111,8 +111,8 @@ if __name__ == "__main__":
         d_input=len(i_cols),
         d_output=len(t_cols),
         d_hidden=args.get("hidden_size", 64),
-        data_mean=scaler.mean_,
-        data_std=scaler.scale_,
+        data_mean=scaler.mean_.tolist(),
+        data_std=scaler.scale_.tolist(),
         **args
     )
 
