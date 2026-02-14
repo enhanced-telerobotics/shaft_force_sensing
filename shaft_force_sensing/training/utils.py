@@ -24,6 +24,9 @@ def args_parser() -> dict:
     parser.add_argument("--weight_decay", type=float, default=1e-4)
     parser.add_argument("--save_dir", type=str,
                         default=f'logs/{datetime.now().strftime("%Y%m%d_%H%M%S")}')
+    parser.add_argument("--ablation_config", type=str, default="Full",
+                        choices=["Full", "No_Hex10", "No_Tq", "No_Vel", "No_Pos", "No_Pos_Vel"],
+                        help="Ablation configuration to use for input columns.")
 
     def parse_unknown_args(unknown):
         """Parse unknown arguments assuming --key value format with auto type conversion"""
@@ -54,6 +57,62 @@ def args_parser() -> dict:
     args.update(parse_unknown_args(unknown))
 
     return args
+
+
+# Define input configurations for ablation studies
+INPUT_CONFIGS = {
+    "Full": [
+        'jaw_position', 'wrist_pitch_position', 'wrist_yaw_position', 'roll_position',
+        'wrist_pitch_velocity', 'wrist_yaw_velocity', 'jaw_velocity', 'roll_velocity',
+        'wrist_pitch_effort', 'wrist_yaw_effort', 'roll_effort',
+        'jaw_effort', 'insertion_effort', 'yaw_effort', 'pitch_effort',
+        'tx', 'ty', 'tz', 'fx', 'fy', 'fz'
+    ],
+    "No_Hex10": [
+        'jaw_position', 'wrist_pitch_position', 'wrist_yaw_position', 'roll_position',
+        'wrist_pitch_velocity', 'wrist_yaw_velocity', 'jaw_velocity', 'roll_velocity',
+        'wrist_pitch_effort', 'wrist_yaw_effort', 'roll_effort',
+        'jaw_effort', 'insertion_effort', 'yaw_effort', 'pitch_effort',
+    ],
+    "No_Tq": [
+        'jaw_position', 'wrist_pitch_position', 'wrist_yaw_position', 'roll_position',
+        'wrist_pitch_velocity', 'wrist_yaw_velocity', 'jaw_velocity', 'roll_velocity',
+        'tx', 'ty', 'tz', 'fx', 'fy', 'fz'
+    ],
+    "No_Vel": [
+        'jaw_position', 'wrist_pitch_position', 'wrist_yaw_position', 'roll_position',
+        'wrist_pitch_effort', 'wrist_yaw_effort', 'roll_effort',
+        'jaw_effort', 'insertion_effort', 'yaw_effort', 'pitch_effort',
+        'tx', 'ty', 'tz', 'fx', 'fy', 'fz'
+    ],
+    "No_Pos": [
+        'wrist_pitch_velocity', 'wrist_yaw_velocity', 'jaw_velocity', 'roll_velocity',
+        'wrist_pitch_effort', 'wrist_yaw_effort', 'roll_effort',
+        'jaw_effort', 'insertion_effort', 'yaw_effort', 'pitch_effort',
+        'tx', 'ty', 'tz', 'fx', 'fy', 'fz'
+    ],
+    "No_Pos_Vel": [
+        'wrist_pitch_effort', 'wrist_yaw_effort', 'roll_effort',
+        'jaw_effort', 'insertion_effort', 'yaw_effort', 'pitch_effort',
+        'tx', 'ty', 'tz', 'fx', 'fy', 'fz'
+    ],
+}
+
+
+def get_input_cols_for_config(config_name: str) -> list:
+    """Return input columns for the specified ablation configuration.
+    
+    Args:
+        config_name: Name of the ablation configuration
+        
+    Returns:
+        List of input columns for the configuration
+    """
+    if config_name not in INPUT_CONFIGS:
+        raise ValueError(f"Unknown configuration: {config_name}. "
+                        f"Choose from {list(INPUT_CONFIGS.keys())}")
+    
+    return INPUT_CONFIGS[config_name]
 
 
 def prepare_datasets(

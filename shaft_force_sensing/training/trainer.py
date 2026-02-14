@@ -12,12 +12,13 @@ from shaft_force_sensing.models import (
 )
 from shaft_force_sensing.training.utils import (
     args_parser,
-    prepare_datasets
+    prepare_datasets,
+    get_input_cols_for_config
 )
 
-# Global column definitions
+# Global column definitions (full set)
 i_cols = [
-    'jaw_position', 'wrist_pitch_position', 'wrist_yaw_position',  'roll_position',
+    'jaw_position', 'wrist_pitch_position', 'wrist_yaw_position', 'roll_position',
     'wrist_pitch_velocity', 'wrist_yaw_velocity', 'jaw_velocity', 'roll_velocity',
     'wrist_pitch_effort', 'wrist_yaw_effort', 'roll_effort',
     'jaw_effort', 'insertion_effort', 'yaw_effort', 'pitch_effort',
@@ -78,13 +79,21 @@ if __name__ == "__main__":
     max_epochs = args["max_epochs"]
     model_type = args["model_type"]
     save_dir = args["save_dir"]
+    ablation_config = args.get("ablation_config", "Full")
 
     # Set random seed for reproducibility
     seed_everything(seed)
 
+    # Get input columns for the specified ablation configuration
+    ablated_i_cols = get_input_cols_for_config(ablation_config)
+    print(f"Using ablation configuration: {ablation_config}")
+    print(f"Input columns: {len(ablated_i_cols)}")
+    if ablation_config != "Full":
+        print(f"Removed columns: {set(i_cols) - set(ablated_i_cols)}")
+
     # Prepare datasets and dataloaders
     train_set, val_set, scaler = prepare_datasets(
-        os.getcwd(), i_cols, t_cols)
+        os.getcwd(), ablated_i_cols, t_cols)
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
 
@@ -97,7 +106,7 @@ if __name__ == "__main__":
         raise ValueError(f"Unsupported model type: {model_type}")
 
     model: LitSequenceModel = model_cls(
-        d_input=len(i_cols),
+        d_input=len(ablated_i_cols),
         d_output=len(t_cols),
         d_hidden=args.get("hidden_size", 64),
         data_mean=scaler.mean_,
