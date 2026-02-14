@@ -20,8 +20,8 @@ class LitSequenceModel(pl.LightningModule):
         lr_scheduler_patience=2,
         lr_scheduler_factor=0.1,
         lr_scheduler_min_lr=1e-6,
-        data_mean=None,
-        data_std=None,
+        data_mean:list=None,
+        data_std:list=None,
         **kwargs
     ):
         """
@@ -32,9 +32,9 @@ class LitSequenceModel(pl.LightningModule):
             d_model (int, optional): Dimension of the model/hidden layers. Defaults to 64.
             lr (float, optional): Learning rate for the optimizer. Defaults to 3e-4.
             weight_decay (float, optional): Weight decay for the optimizer. Defaults to 1e-4.
-            data_mean (np.ndarray, optional): Mean values for dataset normalization. 
+            data_mean (list, optional): Mean values for dataset normalization. 
                 If provided, registered as a buffer. Defaults to None.
-            data_std (np.ndarray, optional): Standard deviation values for dataset normalization. 
+            data_std (list, optional): Standard deviation values for dataset normalization. 
                 If provided, registered as a buffer. Defaults to None.
         """
         super().__init__()
@@ -55,10 +55,10 @@ class LitSequenceModel(pl.LightningModule):
 
         # Register dataset distribution as buffer
         if data_mean is not None:
-            self.register_buffer("data_mean", torch.from_numpy(data_mean))
+            self.register_buffer("data_mean", torch.tensor(data_mean))
 
         if data_std is not None:
-            self.register_buffer("data_std", torch.from_numpy(data_std))
+            self.register_buffer("data_std", torch.tensor(data_std))
 
     def forward(self, x):
         raise NotImplementedError
