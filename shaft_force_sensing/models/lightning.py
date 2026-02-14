@@ -17,6 +17,9 @@ class LitSequenceModel(pl.LightningModule):
         d_model=64,
         lr=3e-4,
         weight_decay=1e-4,
+        lr_scheduler_patience=2,
+        lr_scheduler_factor=0.1,
+        lr_scheduler_min_lr=1e-6,
         data_mean=None,
         data_std=None,
         **kwargs
@@ -44,6 +47,9 @@ class LitSequenceModel(pl.LightningModule):
 
         self.lr = lr
         self.weight_decay = weight_decay
+        self.lr_scheduler_patience = lr_scheduler_patience
+        self.lr_scheduler_factor = lr_scheduler_factor
+        self.lr_scheduler_min_lr = lr_scheduler_min_lr
 
         self.loss_fn = nn.MSELoss()
 
@@ -65,7 +71,7 @@ class LitSequenceModel(pl.LightningModule):
         loss = self.loss_fn(pred, gt)
 
         self.log("train/loss", loss, prog_bar=True,
-                 logger=True, on_epoch=True, on_step=True)
+                 logger=True, on_epoch=True, on_step=False)
 
         return loss
 
@@ -77,7 +83,7 @@ class LitSequenceModel(pl.LightningModule):
         loss = self.loss_fn(pred, gt)
 
         self.log("val/loss", loss, prog_bar=True,
-                 logger=True, on_epoch=True, on_step=True)
+                 logger=True, on_epoch=True, on_step=False)
 
     def test_step(self, batch, batch_idx):
         """Test step."""
@@ -97,11 +103,27 @@ class LitSequenceModel(pl.LightningModule):
 
     def configure_optimizers(self):
         """Configure optimizer."""
-        return torch.optim.Adam(
+        optimizer = torch.optim.Adam(
             self.parameters(),
             lr=self.lr,
             weight_decay=self.weight_decay
         )
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer,
+            mode="min",
+            patience=self.lr_scheduler_patience,
+            factor=self.lr_scheduler_factor,
+            min_lr=self.lr_scheduler_min_lr,
+        )
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {
+                "scheduler": scheduler,
+                "monitor": "val/loss",
+                "interval": "epoch",
+                "frequency": 1,
+            },
+        }
 
 
 class LitTransformer(LitSequenceModel):
