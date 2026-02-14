@@ -2,7 +2,11 @@ import os
 from pathlib import Path
 from torch.utils.data import DataLoader
 from pytorch_lightning import seed_everything, Trainer
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from pytorch_lightning.callbacks import (
+    EarlyStopping,
+    ModelCheckpoint,
+    LearningRateMonitor
+)
 from lightning.pytorch.loggers import TensorBoardLogger
 
 from shaft_force_sensing.models import (
@@ -42,27 +46,34 @@ def train_model(
         save_dir,
         name=model._get_name())
     early_stop_callback = EarlyStopping(
-        monitor="val/loss_epoch",
+        monitor="val/loss",
         min_delta=1e-4,
-        patience=3,
+        patience=4,
         verbose=True,
         mode="min"
     )
     checkpoint_callback = ModelCheckpoint(
         dirpath=save_dir,
-        monitor="val/loss_epoch",
+        monitor="val/loss",
         mode="min",
         save_top_k=1,
         verbose=True,
-        filename="best-epoch={epoch:02d}-loss={val/loss_epoch:.4f}",
+        filename="best-epoch={epoch:02d}-loss={val/loss:.4f}",
         auto_insert_metric_name=False
+    )
+    lr_callback = LearningRateMonitor(
+        logging_interval="epoch"
     )
 
     # Initialize PyTorch Lightning trainer
     trainer = Trainer(
         max_epochs=max_epochs,
         logger=logger,
-        callbacks=[early_stop_callback, checkpoint_callback],
+        callbacks=[
+            early_stop_callback,
+            checkpoint_callback,
+            lr_callback
+        ],
     )
 
     # Train the model
