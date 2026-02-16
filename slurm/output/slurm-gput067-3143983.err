@@ -1,109 +1,0 @@
-[rank: 0] Seed set to 42
-  0%|          | 0/13 [00:00<?, ?it/s]  8%|▊         | 1/13 [00:00<00:08,  1.39it/s] 15%|█▌        | 2/13 [00:01<00:06,  1.81it/s] 23%|██▎       | 3/13 [00:01<00:05,  2.00it/s] 31%|███       | 4/13 [00:02<00:04,  2.09it/s] 38%|███▊      | 5/13 [00:02<00:03,  2.15it/s] 46%|████▌     | 6/13 [00:02<00:03,  2.19it/s] 54%|█████▍    | 7/13 [00:03<00:02,  2.21it/s] 62%|██████▏   | 8/13 [00:03<00:02,  2.21it/s] 69%|██████▉   | 9/13 [00:04<00:02,  1.83it/s] 77%|███████▋  | 10/13 [00:05<00:01,  1.61it/s] 85%|████████▍ | 11/13 [00:06<00:01,  1.52it/s] 92%|█████████▏| 12/13 [00:06<00:00,  1.42it/s]100%|██████████| 13/13 [00:07<00:00,  1.37it/s]100%|██████████| 13/13 [00:07<00:00,  1.69it/s]
-  0%|          | 0/13 [00:00<?, ?it/s]  8%|▊         | 1/13 [00:00<00:09,  1.33it/s] 15%|█▌        | 2/13 [00:01<00:05,  1.92it/s] 23%|██▎       | 3/13 [00:01<00:04,  2.24it/s] 31%|███       | 4/13 [00:01<00:03,  2.43it/s] 38%|███▊      | 5/13 [00:02<00:03,  2.55it/s] 46%|████▌     | 6/13 [00:02<00:02,  2.62it/s] 54%|█████▍    | 7/13 [00:02<00:02,  2.66it/s] 62%|██████▏   | 8/13 [00:03<00:01,  2.70it/s] 69%|██████▉   | 9/13 [00:03<00:01,  2.31it/s] 77%|███████▋  | 10/13 [00:04<00:01,  2.10it/s] 85%|████████▍ | 11/13 [00:04<00:01,  1.98it/s] 92%|█████████▏| 12/13 [00:05<00:00,  1.90it/s]100%|██████████| 13/13 [00:06<00:00,  1.86it/s]100%|██████████| 13/13 [00:06<00:00,  2.12it/s]
-/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/lightning_fabric/plugins/environments/slurm.py:204: The `srun` command is available on your system but is not used. HINT: If your intention is to run Lightning on SLURM, prepend your python command with `srun` like so: srun python /home/sxk2514/erie/shaft_force_sensing/shaft_force_s ...
-GPU available: True (cuda), used: True
-TPU available: False, using: 0 TPU cores
-💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
-You are using a CUDA device ('NVIDIA L40S') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
-/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/pytorch_lightning/callbacks/model_checkpoint.py:881: Checkpoint directory /scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822 exists and is not empty.
-LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
-
-  | Name    | Type     | Params | Mode  | FLOPs
------------------------------------------------------
-0 | loss_fn | MSELoss  | 0      | train | 0    
-1 | model   | LTCModel | 27.4 K | train | 0    
------------------------------------------------------
-22.0 K    Trainable params
-5.4 K     Non-trainable params
-27.4 K    Total params
-0.110     Total estimated model params size (MB)
-5         Modules in train mode
-0         Modules in eval mode
-0         Total Flops
-/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
-/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=19` in the `DataLoader` to improve performance.
-/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=19` in the `DataLoader` to improve performance.
-Metric val/loss improved. New best score: 0.149
-Epoch 0, global step 1305: 'val/loss' reached 0.14947 (best 0.14947), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=00-loss=0.1495.ckpt' as top 1
-Metric val/loss improved by 0.054 >= min_delta = 0.0001. New best score: 0.095
-Epoch 1, global step 2610: 'val/loss' reached 0.09527 (best 0.09527), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=01-loss=0.0953.ckpt' as top 1
-Metric val/loss improved by 0.012 >= min_delta = 0.0001. New best score: 0.084
-Epoch 2, global step 3915: 'val/loss' reached 0.08350 (best 0.08350), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=02-loss=0.0835.ckpt' as top 1
-Metric val/loss improved by 0.006 >= min_delta = 0.0001. New best score: 0.077
-Epoch 3, global step 5220: 'val/loss' reached 0.07705 (best 0.07705), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=03-loss=0.0771.ckpt' as top 1
-Metric val/loss improved by 0.001 >= min_delta = 0.0001. New best score: 0.076
-Epoch 4, global step 6525: 'val/loss' reached 0.07629 (best 0.07629), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=04-loss=0.0763.ckpt' as top 1
-Metric val/loss improved by 0.002 >= min_delta = 0.0001. New best score: 0.074
-Epoch 5, global step 7830: 'val/loss' reached 0.07382 (best 0.07382), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=05-loss=0.0738.ckpt' as top 1
-Metric val/loss improved by 0.001 >= min_delta = 0.0001. New best score: 0.073
-Epoch 6, global step 9135: 'val/loss' reached 0.07274 (best 0.07274), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=06-loss=0.0727.ckpt' as top 1
-Metric val/loss improved by 0.001 >= min_delta = 0.0001. New best score: 0.072
-Epoch 7, global step 10440: 'val/loss' reached 0.07187 (best 0.07187), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=07-loss=0.0719.ckpt' as top 1
-Epoch 8, global step 11745: 'val/loss' was not in top 1
-Metric val/loss improved by 0.001 >= min_delta = 0.0001. New best score: 0.071
-Epoch 9, global step 13050: 'val/loss' reached 0.07121 (best 0.07121), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=09-loss=0.0712.ckpt' as top 1
-Metric val/loss improved by 0.001 >= min_delta = 0.0001. New best score: 0.070
-Epoch 10, global step 14355: 'val/loss' reached 0.06989 (best 0.06989), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=10-loss=0.0699.ckpt' as top 1
-Metric val/loss improved by 0.002 >= min_delta = 0.0001. New best score: 0.068
-Epoch 11, global step 15660: 'val/loss' reached 0.06816 (best 0.06816), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=11-loss=0.0682.ckpt' as top 1
-Epoch 12, global step 16965: 'val/loss' was not in top 1
-Metric val/loss improved by 0.000 >= min_delta = 0.0001. New best score: 0.068
-Epoch 13, global step 18270: 'val/loss' reached 0.06800 (best 0.06800), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=13-loss=0.0680.ckpt' as top 1
-Epoch 14, global step 19575: 'val/loss' was not in top 1
-Epoch 15, global step 20880: 'val/loss' was not in top 1
-Metric val/loss improved by 0.001 >= min_delta = 0.0001. New best score: 0.067
-Epoch 16, global step 22185: 'val/loss' reached 0.06707 (best 0.06707), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=16-loss=0.0671.ckpt' as top 1
-Epoch 17, global step 23490: 'val/loss' was not in top 1
-Epoch 18, global step 24795: 'val/loss' was not in top 1
-Metric val/loss improved by 0.000 >= min_delta = 0.0001. New best score: 0.067
-Epoch 19, global step 26100: 'val/loss' reached 0.06672 (best 0.06672), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=19-loss=0.0667.ckpt' as top 1
-Epoch 20, global step 27405: 'val/loss' was not in top 1
-Epoch 21, global step 28710: 'val/loss' was not in top 1
-Epoch 22, global step 30015: 'val/loss' was not in top 1
-Metric val/loss improved by 0.001 >= min_delta = 0.0001. New best score: 0.066
-Epoch 23, global step 31320: 'val/loss' reached 0.06560 (best 0.06560), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=23-loss=0.0656.ckpt' as top 1
-Epoch 24, global step 32625: 'val/loss' reached 0.06560 (best 0.06560), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=24-loss=0.0656.ckpt' as top 1
-Epoch 25, global step 33930: 'val/loss' was not in top 1
-Epoch 26, global step 35235: 'val/loss' was not in top 1
-Metric val/loss improved by 0.000 >= min_delta = 0.0001. New best score: 0.065
-Epoch 27, global step 36540: 'val/loss' reached 0.06539 (best 0.06539), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=27-loss=0.0654.ckpt' as top 1
-Epoch 28, global step 37845: 'val/loss' was not in top 1
-Epoch 29, global step 39150: 'val/loss' reached 0.06537 (best 0.06537), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=29-loss=0.0654.ckpt' as top 1
-Epoch 30, global step 40455: 'val/loss' reached 0.06537 (best 0.06537), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=30-loss=0.0654.ckpt' as top 1
-Epoch 31, global step 41760: 'val/loss' was not in top 1
-Epoch 32, global step 43065: 'val/loss' reached 0.06535 (best 0.06535), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=32-loss=0.0654.ckpt' as top 1
-Epoch 33, global step 44370: 'val/loss' was not in top 1
-Epoch 34, global step 45675: 'val/loss' reached 0.06534 (best 0.06534), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=34-loss=0.0653.ckpt' as top 1
-Epoch 35, global step 46980: 'val/loss' was not in top 1
-Epoch 36, global step 48285: 'val/loss' was not in top 1
-Epoch 37, global step 49590: 'val/loss' reached 0.06531 (best 0.06531), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=37-loss=0.0653.ckpt' as top 1
-Epoch 38, global step 50895: 'val/loss' was not in top 1
-Epoch 39, global step 52200: 'val/loss' reached 0.06530 (best 0.06530), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=39-loss=0.0653.ckpt' as top 1
-Epoch 40, global step 53505: 'val/loss' was not in top 1
-Epoch 41, global step 54810: 'val/loss' reached 0.06530 (best 0.06530), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=41-loss=0.0653.ckpt' as top 1
-Epoch 42, global step 56115: 'val/loss' was not in top 1
-Epoch 43, global step 57420: 'val/loss' reached 0.06530 (best 0.06530), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=43-loss=0.0653.ckpt' as top 1
-Metric val/loss improved by 0.000 >= min_delta = 0.0001. New best score: 0.065
-Epoch 44, global step 58725: 'val/loss' reached 0.06529 (best 0.06529), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=44-loss=0.0653.ckpt' as top 1
-Epoch 45, global step 60030: 'val/loss' was not in top 1
-Epoch 46, global step 61335: 'val/loss' was not in top 1
-Epoch 47, global step 62640: 'val/loss' reached 0.06529 (best 0.06529), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=47-loss=0.0653.ckpt' as top 1
-Epoch 48, global step 63945: 'val/loss' was not in top 1
-Epoch 49, global step 65250: 'val/loss' was not in top 1
-Epoch 50, global step 66555: 'val/loss' was not in top 1
-Epoch 51, global step 67860: 'val/loss' was not in top 1
-Epoch 52, global step 69165: 'val/loss' reached 0.06529 (best 0.06529), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=52-loss=0.0653.ckpt' as top 1
-Epoch 53, global step 70470: 'val/loss' reached 0.06529 (best 0.06529), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=53-loss=0.0653.ckpt' as top 1
-Epoch 54, global step 71775: 'val/loss' was not in top 1
-Epoch 55, global step 73080: 'val/loss' reached 0.06529 (best 0.06529), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=55-loss=0.0653.ckpt' as top 1
-Epoch 56, global step 74385: 'val/loss' was not in top 1
-Epoch 57, global step 75690: 'val/loss' was not in top 1
-Epoch 58, global step 76995: 'val/loss' was not in top 1
-Epoch 59, global step 78300: 'val/loss' was not in top 1
-Epoch 60, global step 79605: 'val/loss' reached 0.06528 (best 0.06528), saving model to '/scratch/pioneer/users/sxk2514/shaft_force_sensing/logs/20260216_043822/best-epoch=60-loss=0.0653.ckpt' as top 1
-Epoch 61, global step 80910: 'val/loss' was not in top 1
-Epoch 62, global step 82215: 'val/loss' was not in top 1
-Epoch 63, global step 83520: 'val/loss' was not in top 1
-Monitored metric val/loss did not improve in the last 20 records. Best score: 0.065. Signaling Trainer to stop.
-Epoch 64, global step 84825: 'val/loss' was not in top 1

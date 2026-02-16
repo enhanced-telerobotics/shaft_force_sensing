@@ -1,3 +1,14 @@
+# SLURM logs
+slurm/output/
+*.out
+*.err
+# checkpoints
+checkpoints/
+logs/
+
+# temp files
+tmp/
+
 # Workspace
 data/
 logs/
