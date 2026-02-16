@@ -14,7 +14,7 @@ class LitSequenceModel(pl.LightningModule):
         self,
         d_input,
         d_output=3,
-        d_model=64,
+        d_hidden=64,
         lr=3e-4,
         weight_decay=1e-4,
         lr_scheduler_patience=2,
@@ -29,7 +29,7 @@ class LitSequenceModel(pl.LightningModule):
         Args:
             d_input (int): Dimension of input features.
             d_output (int, optional): Dimension of output features. Defaults to 3.
-            d_model (int, optional): Dimension of the model/hidden layers. Defaults to 64.
+            d_hidden (int, optional): Dimension of the model/hidden layers. Defaults to 64.
             lr (float, optional): Learning rate for the optimizer. Defaults to 3e-4.
             weight_decay (float, optional): Weight decay for the optimizer. Defaults to 1e-4.
             data_mean (list, optional): Mean values for dataset normalization. 
@@ -43,7 +43,7 @@ class LitSequenceModel(pl.LightningModule):
         # Initialize model and optimizer parameters
         self.d_input = d_input
         self.d_output = d_output
-        self.d_model = d_model
+        self.d_hidden = d_hidden
 
         self.lr = lr
         self.weight_decay = weight_decay
@@ -138,7 +138,7 @@ class LitTransformer(LitSequenceModel):
         self.model = TransformerModel(
             d_input=self.d_input,
             d_output=self.d_output,
-            d_model=self.d_model,
+            d_model=self.d_hidden,
             nhead=nhead,
             num_layers=num_layers,
         )
@@ -157,7 +157,7 @@ class LitLTC(LitSequenceModel):
         self.model = LTCModel(
             d_input=self.d_input,
             d_output=self.d_output,
-            d_hidden=self.d_model,
+            d_hidden=self.d_hidden,
         )
 
         self._hidden_state = None
