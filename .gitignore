@@ -152,3 +152,5 @@ tmp/
 test_data/
 slurm/
 *.slurm
+*.out
+*.err
