@@ -15,7 +15,7 @@ __all__ = [
     "LitRocket",
     "LitMultiRocket",
     "LitHydra",
-    "RocketForceRegressor",
-    "MultiRocketForceRegressor",
-    "HydraForceRegressor",
+    # "RocketForceRegressor",
+    # "MultiRocketForceRegressor",
+    # "HydraForceRegressor",
 ]

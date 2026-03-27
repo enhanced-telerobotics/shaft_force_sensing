@@ -1,0 +1,9 @@
+ROCKET
+
+3000 kernels
+3226712 : 1 ridge
+3226703: auto ridge
+
+LitMultiRocket
+
+

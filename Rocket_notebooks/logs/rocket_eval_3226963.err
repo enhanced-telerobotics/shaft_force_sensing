@@ -1,0 +1,59 @@
+Fitting scaler:   0%|          | 0/13 [00:00<?, ?it/s]Fitting scaler:   8%|▊         | 1/13 [00:00<00:08,  1.46it/s]Fitting scaler:  15%|█▌        | 2/13 [00:01<00:05,  1.89it/s]Fitting scaler:  23%|██▎       | 3/13 [00:01<00:04,  2.07it/s]Fitting scaler:  31%|███       | 4/13 [00:01<00:04,  2.15it/s]Fitting scaler:  38%|███▊      | 5/13 [00:02<00:03,  2.21it/s]Fitting scaler:  46%|████▌     | 6/13 [00:02<00:03,  2.25it/s]Fitting scaler:  54%|█████▍    | 7/13 [00:03<00:02,  2.26it/s]Fitting scaler:  62%|██████▏   | 8/13 [00:03<00:02,  2.26it/s]Fitting scaler:  69%|██████▉   | 9/13 [00:04<00:02,  1.87it/s]Fitting scaler:  77%|███████▋  | 10/13 [00:05<00:01,  1.64it/s]Fitting scaler:  85%|████████▍ | 11/13 [00:05<00:01,  1.54it/s]Fitting scaler:  92%|█████████▏| 12/13 [00:06<00:00,  1.45it/s]Fitting scaler: 100%|██████████| 13/13 [00:07<00:00,  1.40it/s]Fitting scaler: 100%|██████████| 13/13 [00:07<00:00,  1.73it/s]
+Building test sets:   0%|          | 0/3 [00:00<?, ?it/s]Building test sets:  33%|███▎      | 1/3 [00:00<00:00,  7.49it/s]Building test sets:  67%|██████▋   | 2/3 [00:00<00:00,  6.23it/s]Building test sets: 100%|██████████| 3/3 [00:00<00:00,  4.62it/s]Building test sets: 100%|██████████| 3/3 [00:00<00:00,  5.03it/s]
+Evaluating:   0%|          | 0/3 [00:00<?, ?it/s]Evaluating:   0%|          | 0/3 [00:13<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/sxk2514/erie/Rocket_model/shaft_force_sensing/New_Notebooks/evaluation.py", line 107, in <module>
+    y_pred = model.rocket_model.predict(X)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/erie/Rocket_model/shaft_force_sensing/shaft_force_sensing/models/rocket_models.py", line 147, in predict
+    return self.model.predict(self._validate_X(X).astype(np.float64))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/regression/base.py", line 298, in predict
+    return self._vectorize("predict", X=X)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/base/_base_panel.py", line 76, in _vectorize
+    y_preds = self._yvec.vectorize_est(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/datatypes/_vectorize.py", line 639, in vectorize_est
+    ret = parallelize(
+          ^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/utils/parallel.py", line 86, in parallelize
+    ret = para_fun(
+          ^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/utils/parallel.py", line 107, in _parallelize_none
+    ret = [fun(x, meta=meta) for x in iter]
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/utils/parallel.py", line 107, in <listcomp>
+    ret = [fun(x, meta=meta) for x in iter]
+           ^^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/datatypes/_vectorize.py", line 688, in _vectorize_est_single
+    est_i_result = est_i_method(**args_i)
+                   ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/regression/base.py", line 304, in predict
+    y_pred_inner = self._predict(X)
+                   ^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/regression/_delegate.py", line 143, in _predict
+    return estimator.predict(X=X)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/regression/base.py", line 304, in predict
+    y_pred_inner = self._predict(X)
+                   ^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/regression/compose/_pipeline.py", line 544, in _predict
+    Xt = self.transformers_.transform(X=X)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/transformations/base.py", line 633, in transform
+    Xt = self._transform(X=X_inner, y=y_inner)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/transformations/compose/_pipeline.py", line 390, in _transform
+    Xt = transformer.transform(X=Xt, y=y)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/transformations/base.py", line 633, in transform
+    Xt = self._transform(X=X_inner, y=y_inner)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/sktime/transformations/panel/rocket/_multirocket_multivariate.py", line 206, in _transform
+    set_num_threads(n_jobs)
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/numba/np/ufunc/parallel.py", line 610, in set_num_threads
+    snt_check(n)
+  File "/home/sxk2514/.conda/envs/ltc311/lib/python3.11/site-packages/numba/np/ufunc/parallel.py", line 572, in snt_check
+    raise ValueError(msg)
+ValueError: The number of threads must be between 1 and 86

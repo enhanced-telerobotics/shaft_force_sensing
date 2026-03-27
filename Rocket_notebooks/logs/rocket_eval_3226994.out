@@ -1,0 +1,47 @@
+no change     /usr/local/easybuild_allnodes/software/Miniconda3/23.10.0-1/condabin/conda
+no change     /usr/local/easybuild_allnodes/software/Miniconda3/23.10.0-1/bin/conda
+no change     /usr/local/easybuild_allnodes/software/Miniconda3/23.10.0-1/bin/conda-env
+no change     /usr/local/easybuild_allnodes/software/Miniconda3/23.10.0-1/bin/activate
+no change     /usr/local/easybuild_allnodes/software/Miniconda3/23.10.0-1/bin/deactivate
+no change     /usr/local/easybuild_allnodes/software/Miniconda3/23.10.0-1/etc/profile.d/conda.sh
+no change     /usr/local/easybuild_allnodes/software/Miniconda3/23.10.0-1/etc/fish/conf.d/conda.fish
+no change     /usr/local/easybuild_allnodes/software/Miniconda3/23.10.0-1/shell/condabin/Conda.psm1
+no change     /usr/local/easybuild_allnodes/software/Miniconda3/23.10.0-1/shell/condabin/conda-hook.ps1
+no change     /usr/local/easybuild_allnodes/software/Miniconda3/23.10.0-1/lib/python3.11/site-packages/xontrib/conda.xsh
+no change     /usr/local/easybuild_allnodes/software/Miniconda3/23.10.0-1/etc/profile.d/conda.csh
+no change     /home/sxk2514/.bashrc
+No action taken.
+Loaded LitHydra from ../logs_ROCKET/20260327_101413/LitHydra.pkl
+Saved plot for group: Free
+Saved plot for group: Palpation
+Saved plot for group: Traction
+
+Group: Free
+  F_x: Range=0.0269, RMSE=0.0564, NRMSE=209.73%, R2=-147914.49
+  F_y: Range=0.0284, RMSE=0.0642, NRMSE=226.17%, R2=-244824.18
+  F_z: Range=0.1112, RMSE=0.7131, NRMSE=641.03%, R2=-8166271.65
+  Norm: Range=0.0562, RMSE=0.7079, NRMSE=1259.73%, R2=-10998502.25
+----------
+
+Group: Palpation
+  F_x: Range=4.9692, RMSE=0.1224, NRMSE=2.46%, R2=75.95
+  F_y: Range=7.6659, RMSE=0.1863, NRMSE=2.43%, R2=70.35
+  F_z: Range=9.7312, RMSE=0.6440, NRMSE=6.62%, R2=79.99
+  Norm: Range=9.5360, RMSE=0.6545, NRMSE=6.86%, R2=80.68
+----------
+
+Group: Traction
+  F_x: Range=6.4485, RMSE=0.1788, NRMSE=2.77%, R2=92.71
+  F_y: Range=4.9952, RMSE=0.1949, NRMSE=3.90%, R2=90.79
+  F_z: Range=4.6387, RMSE=0.4121, NRMSE=8.88%, R2=80.38
+  Norm: Range=4.2824, RMSE=0.3294, NRMSE=7.69%, R2=89.16
+----------
+
+Group: All
+  F_x: Range=6.4485, RMSE=0.1433, NRMSE=2.22%, R2=91.10
+  F_y: Range=7.6659, RMSE=0.1713, NRMSE=2.23%, R2=87.72
+  F_z: Range=13.5129, RMSE=0.5633, NRMSE=4.17%, R2=76.07
+  Norm: Range=9.5360, RMSE=0.5383, NRMSE=5.65%, R2=78.01
+----------
+
+Metrics saved to ../logs_ROCKET/20260327_101413/metrics.txt

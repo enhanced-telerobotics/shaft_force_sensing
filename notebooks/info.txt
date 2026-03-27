@@ -1,0 +1,63 @@
+3224714
+    'RocketRegressor': {
+        'class': LitRocket,
+        'kwargs': {
+            'n_kernels': 5000,
+            'n_jobs': -1   # ✅ add this
+        },
+        'description': 'ROCKET with 10K kernels'
+    },
+
+
+
+3224715
+
+models_config = {
+    'RocketRegressor': {
+        'class': LitRocket,
+        'kwargs': {
+            'n_kernels': 12000,
+            'n_jobs': -1   # ✅ add this
+        },
+        'description': 'ROCKET with 10K kernels'
+    },
+
+
+
+3224717
+models_config = {
+    'RocketRegressor': {
+        'class': LitRocket,
+        'kwargs': {
+            'n_kernels': 15000,
+            'n_jobs': -1   # ✅ add this
+        },
+        'description': 'ROCKET with 10K kernels'
+    },
+
+3224719
+
+    'MultiRocketRegressor': {
+        'class': LitMultiRocket,
+        'kwargs': {
+            'n_kernels': 5000,
+            'n_jobs': 1   # ✅ add here too
+        },
+        'description': 'Multi-scale ROCKET with 5K kernels'
+    },
+
+
+3224720
+
+    'MultiRocketRegressor': {
+        'class': LitMultiRocket,
+        'kwargs': {
+            'n_kernels': 10000,
+            'n_jobs': 1   # ✅ add here too
+        },
+        'description': 'Multi-scale ROCKET with 5K kernels'
+    },
+
+3224721 : 15K
+
+3224729:20K

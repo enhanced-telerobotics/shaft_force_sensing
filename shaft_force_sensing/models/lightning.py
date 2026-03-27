@@ -7,7 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from .transformer import TransformerModel
 from .ltc import LTCModel
-
+from .rocket_models import RocketForceRegressor, MultiRocketForceRegressor, HydraForceRegressor
 
 class LitSequenceModel(pl.LightningModule):
     def __init__(
@@ -166,3 +166,4 @@ class LitLTC(LitSequenceModel):
         out, hidden = self.model(x, self._hidden_state)
         # TODO: handle hidden state for LTC
         return out
+

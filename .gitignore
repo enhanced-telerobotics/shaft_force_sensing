@@ -1,6 +1,6 @@
 # Workspace
 data/
-logs/
+logs_ROCKET/
 #notebooks/
 
 # Byte-compiled / optimized / DLL files
@@ -151,3 +151,4 @@ Thumbs.db
 tmp/
 test_data/
 slurm/
+*.slurm
