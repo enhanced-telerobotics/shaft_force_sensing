@@ -1,5 +1,0 @@
-Group: RocketRegressor
-Fx: Range=18.6772, RMSE=0.4194, NRMSE=2.25%, R2=84.44
-Fy: Range=16.8155, RMSE=0.4141, NRMSE=2.46%, R2=84.66
-Fz: Range=12.8409, RMSE=0.3481, NRMSE=2.71%, R2=89.15
-----------
