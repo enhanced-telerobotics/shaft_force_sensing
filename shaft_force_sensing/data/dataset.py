@@ -158,13 +158,13 @@ class TorqueDataset(Dataset):
 
         seq_len = pos_seq.shape[0]
 
-        # Right-pad with zeros so valid timesteps are in [0, seq_len).
+        # Left-pad with zeros so valid timesteps are at the end of the sequence.
         if seq_len < self.sequence_length:
-            pad_right = self.sequence_length - seq_len
-            pos_pad = np.zeros((pad_right, pos_seq.shape[1]), dtype=pos_seq.dtype)
-            vel_pad = np.zeros((pad_right, vel_seq.shape[1]), dtype=vel_seq.dtype)
-            pos_seq = np.vstack([pos_seq, pos_pad])
-            vel_seq = np.vstack([vel_seq, vel_pad])
+            pad_left = self.sequence_length - seq_len
+            pos_pad = np.zeros((pad_left, pos_seq.shape[1]), dtype=pos_seq.dtype)
+            vel_pad = np.zeros((pad_left, vel_seq.shape[1]), dtype=vel_seq.dtype)
+            pos_seq = np.vstack([pos_pad, pos_seq])
+            vel_seq = np.vstack([vel_pad, vel_seq])
         elif seq_len > self.sequence_length:
             pos_seq = pos_seq[-self.sequence_length:]
             vel_seq = vel_seq[-self.sequence_length:]

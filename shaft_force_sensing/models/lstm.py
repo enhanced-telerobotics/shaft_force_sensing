@@ -103,24 +103,8 @@ class LSTMModel(nn.Module):
 		tuple
 			Final hidden and cell states of the LSTM, each of shape [num_layers, batch, hidden_size]
 		"""
-		packed = pack_padded_sequence(
-			x,
-			lengths=lengths.detach().cpu(),
-			batch_first=True,
-			enforce_sorted=False,
-		)
-		packed_out, hn = self.lstm(packed, hx)
-
-		unpacked, _ = pad_packed_sequence(
-			packed_out,
-			batch_first=True,
-			total_length=x.size(1),
-		)
-
-		batch_idx = torch.arange(x.size(0), device=x.device)
-		last_valid = lengths.to(x.device) - 1
-		x = unpacked[batch_idx, last_valid, :]
-
+		x, hn = self.lstm(x, hx)
+		x = x[:, -1, :]
 		x = self.head(x)
 
 		return x, hn
