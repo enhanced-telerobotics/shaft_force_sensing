@@ -1,6 +1,15 @@
 """Model architectures and components."""
 
-from .lightning import LitTransformer, LitLTC, LitSequenceModel
+from .lightning import (
+    LitSequenceModel,
+    LitTransformer,
+    LitLTC,
+    LitLSTM,
+)
 
-__all__ = ["LitTransformer",
-           "LitLTC",]
+__all__ = [
+    "LitSequenceModel",
+    "LitTransformer",
+    "LitLTC",
+    "LitLSTM",
+]

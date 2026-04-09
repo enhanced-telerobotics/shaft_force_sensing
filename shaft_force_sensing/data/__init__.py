@@ -1,5 +1,8 @@
 """Data loading and processing utilities."""
 
-from .dataset import ForceSensingDataset
+from .dataset import SensorDataset, TorqueDataset
 
-__all__ = ["ForceSensingDataset"]
+__all__ = [
+    "SensorDataset",
+    "TorqueDataset",
+]

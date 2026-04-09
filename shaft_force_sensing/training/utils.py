@@ -10,7 +10,7 @@ from datetime import datetime
 
 from torch.utils.data import ConcatDataset, random_split
 
-from shaft_force_sensing import ForceSensingDataset
+from shaft_force_sensing import SensorDataset
 
 
 def args_parser() -> dict:
@@ -60,7 +60,7 @@ def prepare_datasets(
     data_root: str,
     input_cols: list,
     target_cols: list
-) -> Tuple[ForceSensingDataset, ForceSensingDataset, StandardScaler]:
+) -> Tuple[SensorDataset, SensorDataset, StandardScaler]:
     data_paths = sorted(Path(data_root).rglob("*.csv"))
 
     groups = defaultdict(list)
@@ -85,7 +85,7 @@ def prepare_datasets(
         stride = 5
         if p.parent.name == 'Free':
             stride *= 4
-        dataset = ForceSensingDataset(
+        dataset = SensorDataset(
             p,
             input_cols,
             target_cols,

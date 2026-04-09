@@ -7,6 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from .transformer import TransformerModel
 from .ltc import LTCModel
+from .lstm import LSTMModel
 
 
 class LitSequenceModel(pl.LightningModule):
@@ -166,3 +167,76 @@ class LitLTC(LitSequenceModel):
         out, hidden = self.model(x, self._hidden_state)
         # TODO: handle hidden state for LTC
         return out
+
+
+class LitLSTM(LitSequenceModel):
+    def __init__(
+        self,
+        num_layers=1,
+        dropout=0.1,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+
+        self.models = nn.ModuleList([
+            LSTMModel(
+                d_input=self.d_input,
+                d_hidden=self.d_hidden,
+                num_layers=num_layers,
+                dropout=dropout,
+            )
+            for _ in range(6)
+        ])
+
+        self.register_buffer("tao_max", torch.tensor(
+            [10.0000, 10.0000, 10.0000, 0.2000, 0.2000, 0.2000]))
+
+    def forward(self, pos, vec, lengths):
+        x = torch.cat([pos, vec], dim=-1)
+
+        out_list = []
+        hidden_list = []
+        for model in self.models:
+            out_i, hidden_i = model(x, lengths)
+            out_list.append(out_i)
+            hidden_list.append(hidden_i)
+
+        out = torch.cat(out_list, dim=-1)
+        out *= self.tao_max
+        return out, hidden_list
+
+    def training_step(self, batch, batch_idx):
+        """Training step."""
+        pos, vec, tau, _, _, lens = batch
+        pred_tau, _ = self(pos, vec, lens)
+
+        loss = self.loss_fn(pred_tau, tau)
+
+        self.log("train/loss", loss, prog_bar=True,
+                 logger=True, on_epoch=True, on_step=False)
+        
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+        """Validation step."""
+        pos, vec, tau, force, jaco, lens = batch
+        pred_tau, _ = self(pos, vec, lens)
+
+        pred_force = self.calc_force(jaco, tau, pred_tau)
+
+        loss = self.loss_fn(pred_force, force)
+
+        self.log("val/loss", loss, prog_bar=True,
+                 logger=True, on_epoch=True, on_step=False)
+
+    def test_step(self, batch, batch_idx):
+        """Test step."""
+        pos, vec, tau, force, jaco, lens = batch
+        pass
+
+    def calc_force(self, jacobian, tau, pred_tau):
+        # F = J^-T * (tau - tau_pred)
+        J_inv_T = torch.linalg.inv(jacobian).transpose(-1, -2)
+        delta_tau = tau - pred_tau
+        wrench = torch.einsum("...ij,...j->...i", J_inv_T, delta_tau)
+        return wrench[:, :3]
