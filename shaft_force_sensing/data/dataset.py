@@ -111,7 +111,6 @@ class TorqueDataset(Dataset):
 
         # Load data
         data = pd.read_csv(data_path)
-        self.jaco = np.load(data_path.with_suffix('.npy'))
 
         # Downsample by stride
         self.indices = np.arange(0, len(data), stride)
@@ -128,6 +127,11 @@ class TorqueDataset(Dataset):
         self.velocities = data[v_cols].to_numpy()
         self.torques = data[t_cols].to_numpy()
         self.forces = data[f_cols].to_numpy()
+
+        # Load Jacobians and rotaions
+        data = np.load(data_path.with_suffix('.npz'))
+        self.jaco = data['jacobians']
+        self.rot = data['rotations']
 
     def __len__(self) -> int:
         return len(self.indices)
