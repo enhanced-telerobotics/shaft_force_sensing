@@ -18,7 +18,7 @@ class LitSequenceModel(pl.LightningModule):
         d_hidden=64,
         lr=3e-4,
         weight_decay=1e-4,
-        lr_scheduler_patience=2,
+        lr_scheduler_patience=3,
         lr_scheduler_factor=0.1,
         lr_scheduler_min_lr=1e-6,
         data_mean:list=None,

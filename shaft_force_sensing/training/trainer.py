@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from torch.utils.data import DataLoader
 from pytorch_lightning import seed_everything, Trainer
@@ -13,10 +12,12 @@ from shaft_force_sensing.models import (
     LitSequenceModel,
     LitTransformer,
     LitLTC,
+    LitLSTM,
 )
 from shaft_force_sensing.training.utils import (
     args_parser,
-    prepare_datasets
+    prepare_datasets,
+    prepare_baseline_dataset,
 )
 
 # Global column definitions
@@ -48,7 +49,7 @@ def train_model(
     early_stop_callback = EarlyStopping(
         monitor="val/loss",
         min_delta=1e-4,
-        patience=4,
+        patience=10,
         verbose=True,
         mode="min"
     )
@@ -93,28 +94,51 @@ if __name__ == "__main__":
     # Set random seed for reproducibility
     seed_everything(seed)
 
-    # Prepare datasets and dataloaders
-    train_set, val_set, scaler = prepare_datasets(
-        os.getcwd(), i_cols, t_cols)
+    # Prepare datasets and dataloaders based on model type
+    data_root = Path().cwd() / "data" / "Automated"
+    if model_type == "lstm":
+        train_set, val_set = prepare_baseline_dataset(
+            data_root,
+            stride=args.get("stride", 10),
+            sequence_length=args.get("sequence_length", 1000),
+        )
+        scaler = None
+    else:
+        train_set, val_set, scaler = prepare_datasets(
+            data_root,
+            i_cols,
+            t_cols
+        )
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
 
     # Initialize model based on specified type
     if model_type == "transformer":
-        model_cls = LitTransformer
+        model = LitTransformer(
+            d_input=len(i_cols),
+            d_output=len(t_cols),
+            d_hidden=args.get("hidden_size", 64),
+            data_mean=scaler.mean_.tolist(),
+            data_std=scaler.scale_.tolist(),
+            **args
+        )
     elif model_type == "ltc":
-        model_cls = LitLTC
+        model = LitLTC(
+            d_input=len(i_cols),
+            d_output=len(t_cols),
+            d_hidden=args.get("hidden_size", 64),
+            data_mean=scaler.mean_.tolist(),
+            data_std=scaler.scale_.tolist(),
+            **args
+        )
+    elif model_type == "lstm":
+        model = LitLSTM(
+            d_input=12,
+            d_hidden=args.get("hidden_size", 128),
+            **args
+        )
     else:
         raise ValueError(f"Unsupported model type: {model_type}")
-
-    model: LitSequenceModel = model_cls(
-        d_input=len(i_cols),
-        d_output=len(t_cols),
-        d_hidden=args.get("hidden_size", 64),
-        data_mean=scaler.mean_.tolist(),
-        data_std=scaler.scale_.tolist(),
-        **args
-    )
 
     # Train the model
     train_model(model, train_loader, val_loader, max_epochs, save_dir)
