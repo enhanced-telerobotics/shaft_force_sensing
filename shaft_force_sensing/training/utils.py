@@ -1,16 +1,16 @@
-from argparse import ArgumentParser
-from itertools import chain
 from collections import defaultdict
-from tqdm import tqdm
-from sklearn.preprocessing import StandardScaler
+from argparse import ArgumentParser
+from datetime import datetime
+from itertools import chain
 from pathlib import Path
 from typing import Tuple
 import numpy as np
-from datetime import datetime
-
+from sklearn.preprocessing import StandardScaler
 from torch.utils.data import ConcatDataset, random_split
+from tqdm import tqdm
 
 from shaft_force_sensing import SensorDataset
+from shaft_force_sensing.data import TorqueDataset
 
 
 def args_parser() -> dict:
@@ -101,3 +101,37 @@ def prepare_datasets(
     train_set, val_set = random_split(train_set, [train_size, val_size])
 
     return train_set, val_set, scaler
+
+
+def prepare_baseline_dataset(
+    data_root: str,
+    stride: int = 10,
+    sequence_length: int = 1000,
+    train_limit: int = 2,
+):
+    data_paths = sorted(Path(data_root).rglob("*.csv"))
+
+    groups = defaultdict(list)
+    for path in data_paths:
+        groups[path.parent.name].append(path)
+
+    test_paths = [paths[-1] for paths in groups.values()]
+    train_paths = [path for path in data_paths if path not in test_paths]
+    train_paths = train_paths[:train_limit]
+
+    train_sets = defaultdict(list)
+    for path in tqdm(train_paths):
+        dataset = TorqueDataset(
+            path,
+            stride=stride,
+            sequence_length=sequence_length,
+        )
+        train_sets[path.parent.name].append(dataset)
+
+    train_set = ConcatDataset(list(chain.from_iterable(train_sets.values())))
+
+    train_size = int(0.9 * len(train_set))
+    val_size = len(train_set) - train_size
+    train_set, val_set = random_split(train_set, [train_size, val_size])
+
+    return train_set, val_set

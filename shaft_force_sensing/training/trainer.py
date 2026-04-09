@@ -48,7 +48,7 @@ def train_model(
     early_stop_callback = EarlyStopping(
         monitor="val/loss",
         min_delta=1e-4,
-        patience=4,
+        patience=10,
         verbose=True,
         mode="min"
     )
@@ -95,7 +95,10 @@ if __name__ == "__main__":
 
     # Prepare datasets and dataloaders
     train_set, val_set, scaler = prepare_datasets(
-        os.getcwd(), i_cols, t_cols)
+        Path().cwd() / "data" / "Automated",
+        i_cols,
+        t_cols
+    )
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
 
