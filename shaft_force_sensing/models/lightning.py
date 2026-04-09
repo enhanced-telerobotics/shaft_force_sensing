@@ -190,14 +190,23 @@ class LitLSTM(LitSequenceModel):
 
         self.register_buffer("tao_max", torch.tensor(
             [10.0000, 10.0000, 10.0000, 0.2000, 0.2000, 0.2000]))
+        
+        self.reset_hidden()
+
+    def setup(self, stage):
+        if stage in ("test", "predict"):
+            self.reset_hidden()
+
+    def reset_hidden(self):
+        self.hiddens = [None] * 6
 
     def forward(self, pos, vec, lengths):
         x = torch.cat([pos, vec], dim=-1)
 
         out_list = []
         hidden_list = []
-        for model in self.models:
-            out_i, hidden_i = model(x, lengths)
+        for idx, model in enumerate(self.models):
+            out_i, hidden_i = model(x, lengths, self.hiddens[idx])
             out_list.append(out_i)
             hidden_list.append(hidden_i)
 
@@ -224,6 +233,8 @@ class LitLSTM(LitSequenceModel):
 
         pred_force = self.calc_force(jaco, tau, pred_tau)
 
+        # Use for free space only
+        # Since predicted force in the tool frame
         loss = self.loss_fn(pred_force, force)
 
         self.log("val/loss", loss, prog_bar=True,
@@ -232,7 +243,36 @@ class LitLSTM(LitSequenceModel):
     def test_step(self, batch, batch_idx):
         """Test step."""
         pos, vec, tau, force, jaco, lens = batch
-        pass
+        pred_tau, self.hiddens = self(pos, vec, lens)
+        
+        pred_force = self.calc_force(jaco, tau, pred_tau)
+
+        assert pred_force.size(
+            0) == 1, "Test batch size > 1 not supported for force logging."
+
+        logger: SummaryWriter = self.logger.experiment
+
+        # TODOs:
+        # Convert to hex10 sensor frame in post-processing
+        # Also handle reaction force sign convention in post-processing
+        pred = pred_force.squeeze().detach().cpu().tolist()
+        gt = force.squeeze().detach().cpu().tolist()
+
+        logger.add_scalars(
+            "test/force_0",
+            {"pred": pred[0], "gt": gt[0]},
+            global_step=batch_idx,
+        )
+        logger.add_scalars(
+            "test/force_1",
+            {"pred": pred[1], "gt": gt[1]},
+            global_step=batch_idx,
+        )
+        logger.add_scalars(
+            "test/force_2",
+            {"pred": pred[2], "gt": gt[2]},
+            global_step=batch_idx,
+        )
 
     def calc_force(self, jacobian, tau, pred_tau):
         # F = J^-T * (tau - tau_pred)
