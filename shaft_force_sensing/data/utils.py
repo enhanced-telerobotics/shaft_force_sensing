@@ -5,7 +5,7 @@ import json5
 
 def get_train_test(
         data_root: Path,
-        model_type: str = None,
+        model_cls: str = None,
         finetune: bool = False,
         model_idx: int = 0
 ) -> Tuple[List[Path], List[Path]]:
@@ -25,7 +25,7 @@ def get_train_test(
     train_paths = [p for p in all_csv_paths if p.stem in train]
     test_paths = [p for p in all_csv_paths if p.stem in test]
 
-    if 'lstm' in model_type.lower():
+    if 'lstm' in model_cls.lower():
         train_paths = [
             p for p in train_paths if "F" in p.stem or "free" in p.stem]
 
@@ -51,10 +51,10 @@ if __name__ == "__main__":
     data_root = Path("data")
     model_type = "LSTM"
     model_idx = 0
-    transfer_learning = False
+    finetune = False
 
     train_paths, test_paths = get_train_test(
-        data_root, model_type, model_idx, transfer_learning)
+        data_root, model_type, finetune, model_idx)
 
     print("Train paths:")
     for p in train_paths:

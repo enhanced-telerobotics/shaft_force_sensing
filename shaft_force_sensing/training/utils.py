@@ -67,7 +67,7 @@ def args_parser() -> dict:
 
 def prepare_datasets(
     data_root: str,
-    model_type: str,
+    model_cls: str,
     finetune: bool = False,
     ablations: str = None,
     model_idx: int = 0,
@@ -77,14 +77,14 @@ def prepare_datasets(
     # Get train/test splits based on model type and finetuning setting
     train_paths, _ = get_train_test(
         data_root,
-        model_type,
+        model_cls,
         finetune,
         model_idx
     )
 
     train_sets = defaultdict(list)
 
-    if model_type != "lstm":
+    if 'lstm' not in model_cls.lower():
         # Initialize normalizer using all training data
         scaler = StandardScaler()
         forces = []
@@ -99,13 +99,12 @@ def prepare_datasets(
 
         # Downsample more for free space data
         for p in tqdm(train_paths):
-            if p.parent.name == 'Free':
-                stride *= 4
             dataset = SensorDataset(
                 p,
                 input_cols,
                 target_cols,
-                stride,
+                # Use larger stride for free space data to balance the dataset
+                stride if p.parent.name != 'Free' else stride * 4,
                 sequence_length,
                 nomalizer=scaler)
             train_sets[p.parent.name].append(dataset)
@@ -150,7 +149,7 @@ def prepare_test_dataset(
     # Get test paths
     _, test_paths = get_train_test(
         data_root,
-        model_cls.lower().replace("lit", ""),
+        model_cls,
         finetune,
         model.hparams.get("model_idx", 0)
     )
@@ -189,7 +188,7 @@ if __name__ == "__main__":
     train_set, val_set, scaler = prepare_datasets(
         Path().cwd() / "data",
         'lstm',
-        finetune=True,
+        finetune=False,
         ablations=None,
         model_idx=0,
         stride=1,

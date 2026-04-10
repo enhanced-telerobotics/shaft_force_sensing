@@ -19,10 +19,6 @@ from shaft_force_sensing.training.utils import (
     args_parser,
     prepare_datasets,
 )
-from shaft_force_sensing.data import (
-    get_train_test,
-    get_cols
-)
 
 
 def train_model(
