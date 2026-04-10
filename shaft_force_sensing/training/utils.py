@@ -9,6 +9,7 @@ from sklearn.preprocessing import StandardScaler
 from torch.utils.data import ConcatDataset, random_split, Dataset
 from tqdm import tqdm
 
+import shaft_force_sensing.models
 from shaft_force_sensing.models import LitSequenceModel
 from shaft_force_sensing.data import (
     SensorDataset,
@@ -182,6 +183,22 @@ def prepare_test_dataset(
         raise ValueError(f"Unknown model class: {model_cls}")
     
     return test_sets, batch_size
+
+
+def load_model(dir: Path, **override_hparams) -> LitSequenceModel:
+    model_cls_name = None
+    for p in dir.iterdir():
+        if p.name in shaft_force_sensing.models.__all__:
+            model_cls_name = p.name
+            break
+
+    assert model_cls_name is not None, "Model name not found in checkpoint directory."
+
+    ckpt_paths = sorted(dir.glob("best*.ckpt"))
+    assert ckpt_paths, "No checkpoint matching 'best*.ckpt' found in model directory."
+
+    model_cls = getattr(shaft_force_sensing.models, model_cls_name)
+    return model_cls.load_from_checkpoint(ckpt_paths[-1], **override_hparams)
 
 
 if __name__ == "__main__":

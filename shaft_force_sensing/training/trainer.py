@@ -18,6 +18,7 @@ from shaft_force_sensing.models import (
 from shaft_force_sensing.training.utils import (
     args_parser,
     prepare_datasets,
+    load_model,
 )
 
 
@@ -130,10 +131,7 @@ if __name__ == "__main__":
                 break
         assert model_cls is not None, "Model name not found in checkpoint directory."
 
-        model: LitSequenceModel = eval(model_cls).load_from_checkpoint(
-            sorted(model_dir.glob("best*.ckpt"))[-1],
-            **args
-        )
+        model = load_model(model_dir, **args)
 
 
     # Train the model
