@@ -79,8 +79,9 @@ if __name__ == "__main__":
     batch_size = args["batch_size"]
     max_epochs = args["max_epochs"]
     model_type = args["model_type"]
-    save_dir = args["save_dir"]
     finetune = args.get("finetune", False)
+    save_dir = args["save_dir"]
+    model_dir = args["model_dir"]
 
     # Set random seed for reproducibility
     seed_everything(seed)
@@ -119,22 +120,20 @@ if __name__ == "__main__":
         else:
             raise ValueError(f"Unsupported model type: {model_type}")
     else:
-        save_dir = Path.cwd() / "logs" / save_dir
+        model_dir = Path(model_dir)
+        assert model_dir.is_dir(), f"Model directory {model_dir} does not exist."
 
         # Load model from checkpoint for fine-tuning
-        for p in save_dir.iterdir():
+        for p in model_dir.iterdir():
             if p.name in shaft_force_sensing.models.__all__:
                 model_cls = p.name
                 break
         assert model_cls is not None, "Model name not found in checkpoint directory."
 
         model: LitSequenceModel = eval(model_cls).load_from_checkpoint(
-            sorted(save_dir.glob("best*.ckpt"))[-1],
+            sorted(model_dir.glob("best*.ckpt"))[-1],
             **args
         )
-
-        # replace save dir with postfix for fine-tuning
-        save_dir = save_dir.parent / f"{save_dir.name}_finetune"
 
 
     # Train the model

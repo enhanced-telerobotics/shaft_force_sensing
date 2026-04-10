@@ -33,6 +33,7 @@ def args_parser() -> dict:
     parser.add_argument("--weight_decay", type=float, default=1e-4)
     parser.add_argument("--save_dir", type=str,
                         default=f'logs/{datetime.now().strftime("%Y%m%d_%H%M%S")}')
+    parser.add_argument("--model_dir", type=str, default=None)
 
     def parse_unknown_args(unknown):
         """Parse unknown arguments assuming --key value format with auto type conversion"""
