@@ -23,6 +23,7 @@ class LitSequenceModel(pl.LightningModule):
         lr_scheduler_min_lr=1e-6,
         data_mean:list=None,
         data_std:list=None,
+        finetune=False,
         **kwargs
     ):
         """
@@ -60,6 +61,17 @@ class LitSequenceModel(pl.LightningModule):
 
         if data_std is not None:
             self.register_buffer("data_std", torch.tensor(data_std))
+
+        self.finetune = finetune
+
+    def setup(self, stage):
+        if stage == "fit" and self.finetune:
+            # Freeze backbone layers for fine-tuning, only train the head
+            # The derived class should name the last linear layer as "head" for this to work
+            # Otherwise, overload this method in the derived class
+            for name, param in self.named_parameters():
+                if 'head' not in name:
+                    param.requires_grad = False
 
     def forward(self, x):
         raise NotImplementedError
@@ -196,6 +208,8 @@ class LitLSTM(LitSequenceModel):
     def setup(self, stage):
         if stage in ("test", "predict"):
             self.reset_hidden()
+        else:
+            super().setup(stage)
 
     def reset_hidden(self):
         self.hiddens = [None] * 6

@@ -8,6 +8,7 @@ from pytorch_lightning.callbacks import (
 )
 from lightning.pytorch.loggers import TensorBoardLogger
 
+import shaft_force_sensing.models
 from shaft_force_sensing.models import (
     LitSequenceModel,
     LitTransformer,
@@ -17,18 +18,11 @@ from shaft_force_sensing.models import (
 from shaft_force_sensing.training.utils import (
     args_parser,
     prepare_datasets,
-    prepare_baseline_dataset,
 )
-
-# Global column definitions
-i_cols = [
-    'jaw_position', 'wrist_pitch_position', 'wrist_yaw_position',  'roll_position',
-    'wrist_pitch_velocity', 'wrist_yaw_velocity', 'jaw_velocity', 'roll_velocity',
-    'wrist_pitch_effort', 'wrist_yaw_effort', 'roll_effort',
-    'jaw_effort', 'insertion_effort', 'yaw_effort', 'pitch_effort',
-    'tx', 'ty', 'tz', 'fx', 'fy', 'fz'
-]
-t_cols = ['ati_fx', 'ati_fy', 'ati_fz']
+from shaft_force_sensing.data import (
+    get_train_test,
+    get_cols
+)
 
 
 def train_model(
@@ -90,55 +84,62 @@ if __name__ == "__main__":
     max_epochs = args["max_epochs"]
     model_type = args["model_type"]
     save_dir = args["save_dir"]
+    finetune = args.get("finetune", False)
 
     # Set random seed for reproducibility
     seed_everything(seed)
 
     # Prepare datasets and dataloaders based on model type
-    data_root = Path().cwd() / "data" / "Automated"
-    if model_type == "lstm":
-        train_set, val_set = prepare_baseline_dataset(
-            data_root,
-            stride=args.get("stride", 10),
-            sequence_length=args.get("sequence_length", 1000),
-        )
-        scaler = None
-    else:
-        train_set, val_set, scaler = prepare_datasets(
-            data_root,
-            i_cols,
-            t_cols
-        )
+    train_set, val_set, scaler = prepare_datasets(
+        Path().cwd() / "data",
+        model_type,
+        finetune=finetune,
+        ablations=args.get("ablations", None),
+        model_idx=args.get("model_idx", 0),
+        stride=args.get("stride", 5),
+        sequence_length=args.get("sequence_length", 100),
+    )
+    
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
 
-    # Initialize model based on specified type
-    if model_type == "transformer":
-        model = LitTransformer(
-            d_input=len(i_cols),
-            d_output=len(t_cols),
-            d_hidden=args.get("hidden_size", 64),
-            data_mean=scaler.mean_.tolist(),
-            data_std=scaler.scale_.tolist(),
-            **args
-        )
-    elif model_type == "ltc":
-        model = LitLTC(
-            d_input=len(i_cols),
-            d_output=len(t_cols),
-            d_hidden=args.get("hidden_size", 64),
-            data_mean=scaler.mean_.tolist(),
-            data_std=scaler.scale_.tolist(),
-            **args
-        )
-    elif model_type == "lstm":
-        model = LitLSTM(
-            d_input=12,
-            d_hidden=args.get("hidden_size", 128),
-            **args
-        )
+    if not finetune:
+        # Initialize model based on specified type
+        if model_type == "transformer" or model_type == "ltc":
+            model = LitTransformer(
+                d_input=train_set[0][0].shape[1],
+                d_output=train_set[0][1].shape[0],
+                d_hidden=args.get("hidden_size", 64),
+                data_mean=scaler.mean_.tolist(),
+                data_std=scaler.scale_.tolist(),
+                **args
+            )
+        elif model_type == "lstm":
+            model = LitLSTM(
+                d_input=train_set[0][0].shape[1] * 2,
+                d_hidden=args.get("hidden_size", 128),
+                **args
+            )
+        else:
+            raise ValueError(f"Unsupported model type: {model_type}")
     else:
-        raise ValueError(f"Unsupported model type: {model_type}")
+        save_dir = Path.cwd() / "logs" / save_dir
+
+        # Load model from checkpoint for fine-tuning
+        for p in save_dir.iterdir():
+            if p.name in shaft_force_sensing.models.__all__:
+                model_cls = p.name
+                break
+        assert model_cls is not None, "Model name not found in checkpoint directory."
+
+        model: LitSequenceModel = eval(model_cls).load_from_checkpoint(
+            sorted(save_dir.glob("best*.ckpt"))[-1],
+            **args
+        )
+
+        # replace save dir with postfix for fine-tuning
+        save_dir = save_dir.parent / f"{save_dir.name}_finetune"
+
 
     # Train the model
     train_model(model, train_loader, val_loader, max_epochs, save_dir)

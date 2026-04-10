@@ -6,10 +6,10 @@ import json5
 def get_train_test(
         data_root: Path,
         model_type: str = None,
-        model_idx: int = 0,
-        transfer_learning: bool = False
+        finetune: bool = False,
+        model_idx: int = 0
 ) -> Tuple[List[Path], List[Path]]:
-    if not transfer_learning:
+    if not finetune:
         data_path = data_root / "Automated"
     else:
         data_path = data_root / "Teleop"
@@ -30,6 +30,21 @@ def get_train_test(
             p for p in train_paths if "F" in p.stem or "free" in p.stem]
 
     return sorted(train_paths), sorted(test_paths)
+
+def get_cols(ablations: str) -> Tuple[List[str], List[str]]:
+    # Global column definitions
+    i_cols = [
+        'jaw_position', 'wrist_pitch_position', 'wrist_yaw_position',  'roll_position',
+        'wrist_pitch_velocity', 'wrist_yaw_velocity', 'jaw_velocity', 'roll_velocity',
+        'wrist_pitch_effort', 'wrist_yaw_effort', 'roll_effort',
+        'jaw_effort', 'insertion_effort', 'yaw_effort', 'pitch_effort',
+        'tx', 'ty', 'tz', 'fx', 'fy', 'fz'
+    ]
+    t_cols = ['ati_fx', 'ati_fy', 'ati_fz']
+
+    # TODO: Add more ablation options
+
+    return i_cols, t_cols
 
 
 if __name__ == "__main__":

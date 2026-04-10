@@ -6,11 +6,16 @@ from pathlib import Path
 from typing import Tuple
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from torch.utils.data import ConcatDataset, random_split
+from torch.utils.data import ConcatDataset, random_split, Dataset
 from tqdm import tqdm
 
-from shaft_force_sensing import SensorDataset
-from shaft_force_sensing.data import TorqueDataset
+from shaft_force_sensing.models import LitSequenceModel
+from shaft_force_sensing.data import (
+    SensorDataset,
+    TorqueDataset,
+    get_train_test,
+    get_cols
+)
 
 
 def args_parser() -> dict:
@@ -22,6 +27,7 @@ def args_parser() -> dict:
                             "transformer",
                             "ltc",
                             "lstm"], default="transformer")
+    parser.add_argument("--finetune", action="store_true")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--weight_decay", type=float, default=1e-4)
@@ -61,41 +67,60 @@ def args_parser() -> dict:
 
 def prepare_datasets(
     data_root: str,
-    input_cols: list,
-    target_cols: list
-) -> Tuple[SensorDataset, SensorDataset, StandardScaler]:
-    data_paths = sorted(Path(data_root).rglob("*.csv"))
-
-    groups = defaultdict(list)
-    for p in data_paths:
-        groups[p.parent.name].append(p)
-
-    test_paths = [lst[-1] for lst in groups.values()]
-    train_paths = [p for p in data_paths if p not in test_paths]
-    train_paths.pop(3)
-    train_paths.pop(2)
-
-    scaler = StandardScaler()
-    forces = []
-    for p in tqdm(train_paths):
-        data = np.loadtxt(p, delimiter=",", skiprows=1)
-        forces.append(data[:, -3:])
-    forces = np.concatenate(forces, axis=0)
-    scaler.fit(forces)
+    model_type: str,
+    finetune: bool = False,
+    ablations: str = None,
+    model_idx: int = 0,
+    stride: int = 5,
+    sequence_length: int = 100
+) -> Tuple[Dataset, Dataset, StandardScaler]:
+    # Get train/test splits based on model type and finetuning setting
+    train_paths, _ = get_train_test(
+        data_root,
+        model_type,
+        finetune,
+        model_idx
+    )
 
     train_sets = defaultdict(list)
-    for p in tqdm(train_paths):
-        stride = 5
-        if p.parent.name == 'Free':
-            stride *= 4
-        dataset = SensorDataset(
-            p,
-            input_cols,
-            target_cols,
-            stride,
-            nomalizer=scaler)
-        train_sets[p.parent.name].append(dataset)
 
+    if model_type != "lstm":
+        # Initialize normalizer using all training data
+        scaler = StandardScaler()
+        forces = []
+        for p in tqdm(train_paths):
+            data = np.loadtxt(p, delimiter=",", skiprows=1)
+            forces.append(data[:, -3:])
+        forces = np.concatenate(forces, axis=0)
+        scaler.fit(forces)
+
+        # Get input and target columns based on ablation settings
+        input_cols, target_cols = get_cols(ablations)
+
+        # Downsample more for free space data
+        for p in tqdm(train_paths):
+            if p.parent.name == 'Free':
+                stride *= 4
+            dataset = SensorDataset(
+                p,
+                input_cols,
+                target_cols,
+                stride,
+                sequence_length,
+                nomalizer=scaler)
+            train_sets[p.parent.name].append(dataset)
+    else:
+        scaler = None
+
+        for path in tqdm(train_paths):
+            dataset = TorqueDataset(
+                path,
+                stride,
+                sequence_length,
+            )
+            train_sets[path.parent.name].append(dataset)
+    
+    # Concatenate datasets from different groups and split into train/val
     train_set = ConcatDataset(
         list(chain.from_iterable(train_sets.values())))
 
@@ -106,35 +131,70 @@ def prepare_datasets(
     return train_set, val_set, scaler
 
 
-def prepare_baseline_dataset(
+def prepare_test_dataset(
     data_root: str,
-    stride: int = 10,
-    sequence_length: int = 1000,
-    train_limit: int = 2,
-):
-    data_paths = sorted(Path(data_root).rglob("*.csv"))
+    model: LitSequenceModel,
+    finetune: bool = None,
+    ablations: str = None
+) -> Tuple[dict, int]:
+    # Initialize test sets dictionary
+    test_sets = dict()
+    
+    # Retrieve settings from the model
+    if finetune is None:
+        finetune = model.hparams.get("finetune", False)
+    if ablations is None:
+        ablations = model.hparams.get("ablations", None)
+    model_cls = model._get_name()
 
-    groups = defaultdict(list)
-    for path in data_paths:
-        groups[path.parent.name].append(path)
+    # Get test paths
+    _, test_paths = get_train_test(
+        data_root,
+        model_cls.lower().replace("lit", ""),
+        finetune,
+        model.hparams.get("model_idx", 0)
+    )
 
-    test_paths = [paths[-1] for paths in groups.values()]
-    train_paths = [path for path in data_paths if path not in test_paths]
-    train_paths = train_paths[:train_limit]
+    # Prepare test datasets
+    if model_cls == "LitTransformer" or model_cls == "LitLTC":
+        golbal_scaler = StandardScaler()
+        golbal_scaler.mean_ = model.data_mean.numpy(force=True)
+        golbal_scaler.scale_ = model.data_std.numpy(force=True)
 
-    train_sets = defaultdict(list)
-    for path in tqdm(train_paths):
-        dataset = TorqueDataset(
-            path,
-            stride=stride,
-            sequence_length=sequence_length,
-        )
-        train_sets[path.parent.name].append(dataset)
+        i_cols, t_cols = get_cols(ablations)
 
-    train_set = ConcatDataset(list(chain.from_iterable(train_sets.values())))
+        for p in tqdm(test_paths):
+            dataset = SensorDataset(
+                p, i_cols, t_cols,
+                nomalizer=golbal_scaler)
+            test_sets[p.stem] = dataset
 
-    train_size = int(0.9 * len(train_set))
-    val_size = len(train_set) - train_size
-    train_set, val_set = random_split(train_set, [train_size, val_size])
+        # As large as possible for faster inference
+        batch_size = 1000
+    elif model_cls == "LitLSTM":
+        for p in tqdm(test_paths):
+            dataset = TorqueDataset(p, stride=1)
+            test_sets[p.stem] = dataset
 
-    return train_set, val_set
+        # LSTM uses hidden states
+        batch_size = 1
+    else:
+        raise ValueError(f"Unknown model class: {model_cls}")
+    
+    return test_sets, batch_size
+
+
+if __name__ == "__main__":
+    # Example usage
+    train_set, val_set, scaler = prepare_datasets(
+        Path().cwd() / "data",
+        'lstm',
+        finetune=True,
+        ablations=None,
+        model_idx=0,
+        stride=1,
+        sequence_length=100,
+    )
+
+    print(f"Train set size: {len(train_set)}")
+    print(f"First train sample shape: {train_set[0][0].shape}, {train_set[0][1].shape}")
