@@ -81,7 +81,6 @@ class LSTMModel(nn.Module):
 	def forward(
 			self, 
 			x: torch.Tensor, 
-			lengths: torch.Tensor,
 			hx: tuple = None) -> torch.Tensor:
 		"""Forward pass of the model.
 
@@ -89,9 +88,6 @@ class LSTMModel(nn.Module):
 		----------
 		x : torch.Tensor
 			Input tensor of shape [batch, seq_len, input_size]
-		lengths : torch.Tensor
-			Valid sequence lengths for each batch sample.
-			If provided, padded tokens are skipped via pack/unpack.
 		hx : tuple, optional
 			Initial hidden and cell states for the LSTM, each of shape [num_layers, batch, hidden_size].
 			If None, initialized to zeros. (default: None)

@@ -144,7 +144,7 @@ class TorqueDataset(Dataset):
             torque (torch.Tensor): Joint torque at current timestep of shape (joints, )
             force_target (torch.Tensor): Force target of shape (3, )
             jaco (torch.Tensor): Jacobian matrix at current timestep of shape (6, joints)
-            seq_len (torch.Tensor): Number of valid (non-padded) timesteps, shape ()
+            rot (torch.Tensor): Rotation matrix at current timestep of shape (3, 3)
         """
         data_idx = self.indices[idx]
         start = data_idx - self.sequence_length + 1
@@ -155,10 +155,10 @@ class TorqueDataset(Dataset):
         torque = self.torques[data_idx]
         force_target = self.forces[data_idx]
         jaco = self.jaco[data_idx]
-
-        seq_len = pos_seq.shape[0]
+        rot = self.rot[data_idx]
 
         # Left-pad with zeros so valid timesteps are at the end of the sequence.
+        seq_len = pos_seq.shape[0]
         if seq_len < self.sequence_length:
             pad_left = self.sequence_length - seq_len
             pos_pad = np.zeros((pad_left, pos_seq.shape[1]), dtype=pos_seq.dtype)
@@ -168,7 +168,6 @@ class TorqueDataset(Dataset):
         elif seq_len > self.sequence_length:
             pos_seq = pos_seq[-self.sequence_length:]
             vel_seq = vel_seq[-self.sequence_length:]
-            seq_len = self.sequence_length
 
         return (
             torch.as_tensor(pos_seq, dtype=torch.float32),
@@ -176,5 +175,5 @@ class TorqueDataset(Dataset):
             torch.as_tensor(torque, dtype=torch.float32),
             torch.as_tensor(force_target, dtype=torch.float32),
             torch.as_tensor(jaco, dtype=torch.float32),
-            torch.as_tensor(seq_len, dtype=torch.long),
+            torch.as_tensor(rot, dtype=torch.float32),
         )

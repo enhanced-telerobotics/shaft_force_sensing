@@ -200,13 +200,13 @@ class LitLSTM(LitSequenceModel):
     def reset_hidden(self):
         self.hiddens = [None] * 6
 
-    def forward(self, pos, vec, lengths):
+    def forward(self, pos, vec):
         x = torch.cat([pos, vec], dim=-1)
 
         out_list = []
         hidden_list = []
         for idx, model in enumerate(self.models):
-            out_i, hidden_i = model(x, lengths, self.hiddens[idx])
+            out_i, hidden_i = model(x, self.hiddens[idx])
             out_list.append(out_i)
             hidden_list.append(hidden_i)
 
@@ -216,8 +216,8 @@ class LitLSTM(LitSequenceModel):
 
     def training_step(self, batch, batch_idx):
         """Training step."""
-        pos, vec, tau, _, _, lens = batch
-        pred_tau, _ = self(pos, vec, lens)
+        pos, vec, tau, _, _, _ = batch
+        pred_tau, _ = self(pos, vec)
 
         loss = self.loss_fn(pred_tau, tau)
 
@@ -228,13 +228,13 @@ class LitLSTM(LitSequenceModel):
 
     def validation_step(self, batch, batch_idx):
         """Validation step."""
-        pos, vec, tau, force, jaco, lens = batch
-        pred_tau, _ = self(pos, vec, lens)
+        pos, vec, tau, force, jaco, _ = batch
+        pred_tau, _ = self(pos, vec)
 
         pred_force = self.calc_force(jaco, tau, pred_tau)
 
         # Use for free space only
-        # Since predicted force in the tool frame
+        # Since predicted force in the base frame
         loss = self.loss_fn(pred_force, force)
 
         self.log("val/loss", loss, prog_bar=True,
@@ -242,19 +242,17 @@ class LitLSTM(LitSequenceModel):
 
     def test_step(self, batch, batch_idx):
         """Test step."""
-        pos, vec, tau, force, jaco, lens = batch
-        pred_tau, self.hiddens = self(pos, vec, lens)
+        pos, vec, tau, force, jaco, rot = batch
+        pred_tau, self.hiddens = self(pos, vec)
         
         pred_force = self.calc_force(jaco, tau, pred_tau)
+        pred_force = torch.einsum("...ij,...j->...i", rot, pred_force)
 
         assert pred_force.size(
             0) == 1, "Test batch size > 1 not supported for force logging."
 
         logger: SummaryWriter = self.logger.experiment
 
-        # TODOs:
-        # Convert to hex10 sensor frame in post-processing
-        # Also handle reaction force sign convention in post-processing
         pred = pred_force.squeeze().detach().cpu().tolist()
         gt = force.squeeze().detach().cpu().tolist()
 
