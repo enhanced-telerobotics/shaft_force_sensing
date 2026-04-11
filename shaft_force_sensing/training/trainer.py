@@ -103,11 +103,19 @@ if __name__ == "__main__":
 
     if not transfer:
         # Initialize model based on specified type
-        if model_type == "transformer" or model_type == "ltc":
+        if model_type == "transformer":
             model = LitTransformer(
                 d_input=train_set[0][0].shape[1],
                 d_output=train_set[0][1].shape[0],
                 d_hidden=args.get("hidden_size", 64),
+                data_mean=scaler.mean_.tolist(),
+                data_std=scaler.scale_.tolist(),
+                **args
+            )
+        elif model_type == "ltc":
+            model = LitLTC(
+                d_input=train_set[0][0].shape[1],
+                d_hidden=args.get("hidden_size", 128),
                 data_mean=scaler.mean_.tolist(),
                 data_std=scaler.scale_.tolist(),
                 **args
@@ -131,7 +139,20 @@ if __name__ == "__main__":
                 break
         assert model_cls is not None, "Model name not found in checkpoint directory."
 
-        model = load_model(model_dir, **args)
+        if model_type == "transformer" or model_type == "ltc":
+            model = load_model(
+                model_dir, 
+                data_mean=scaler.mean_.tolist(),
+                data_std=scaler.scale_.tolist(),
+                **args
+            )
+        elif model_type == "lstm":
+            model = load_model(
+                model_dir, 
+                **args
+            )
+        else:
+            raise ValueError(f"Unsupported model type: {model_type}")
 
 
     # Train the model

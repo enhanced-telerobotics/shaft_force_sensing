@@ -201,8 +201,8 @@ if __name__ == "__main__":
     # Example usage
     train_set, val_set, scaler = prepare_datasets(
         Path().cwd() / "data",
-        'lstm',
-        transfer=False,
+        'transformer',
+        transfer=True,
         ablations=None,
         model_idx=0,
         stride=1,
@@ -211,3 +211,4 @@ if __name__ == "__main__":
 
     print(f"Train set size: {len(train_set)}")
     print(f"First train sample shape: {train_set[0][0].shape}, {train_set[0][1].shape}")
+    print(f"Mean \pm std of scaled forces: {scaler.mean_} \pm {scaler.scale_}")
