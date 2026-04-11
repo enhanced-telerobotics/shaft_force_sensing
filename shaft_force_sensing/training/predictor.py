@@ -31,7 +31,7 @@ def predict_model(model: LitSequenceModel, save_dir: Path, data_root: Path) -> N
     for group, loader in test_loaders.items():
         logger = TensorBoardLogger(
             save_dir,
-            name="test" if not finetune else "teleop_test",
+            name="Automated" if not finetune else "Teleop",
             version=group,
         )
         Trainer(logger=logger).test(model=model, dataloaders=loader)
