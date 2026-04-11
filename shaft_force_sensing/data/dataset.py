@@ -51,9 +51,6 @@ class SensorDataset(Dataset):
         # Normalize targets
         if nomalizer is not None:
             self.y = nomalizer.transform(self.y)
-        else:
-            nomalizer = StandardScaler()
-            self.y = nomalizer.fit_transform(self.y)
 
         self.nomalizer = nomalizer
 

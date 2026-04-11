@@ -134,54 +134,50 @@ def prepare_datasets(
 
 def prepare_test_dataset(
     data_root: str,
-    model: LitSequenceModel,
-    finetune: bool = None,
-    ablations: str = None
+    model_cls: str,
+    finetune: bool = False,
+    ablations: str = None,
+    model_idx: int = 0,
+    sequence_length: int = 100
 ) -> Tuple[dict, int]:
     # Initialize test sets dictionary
     test_sets = dict()
-    
-    # Retrieve settings from the model
-    if finetune is None:
-        finetune = model.hparams.get("finetune", False)
-    if ablations is None:
-        ablations = model.hparams.get("ablations", None)
-    model_cls = model._get_name()
 
     # Get test paths
     _, test_paths = get_train_test(
         data_root,
         model_cls,
         finetune,
-        model.hparams.get("model_idx", 0)
+        model_idx
     )
 
     # Prepare test datasets
-    if model_cls == "LitTransformer" or model_cls == "LitLTC":
-        golbal_scaler = StandardScaler()
-        golbal_scaler.mean_ = model.data_mean.numpy(force=True)
-        golbal_scaler.scale_ = model.data_std.numpy(force=True)
-
+    if 'lstm' not in model_cls.lower():
         i_cols, t_cols = get_cols(ablations)
 
         for p in tqdm(test_paths):
             dataset = SensorDataset(
                 p, i_cols, t_cols,
-                nomalizer=golbal_scaler)
+                stride=1,
+                sequence_length=sequence_length,
+                nomalizer=None,
+            )
             test_sets[p.stem] = dataset
 
         # As large as possible for faster inference
         batch_size = 1000
-    elif model_cls == "LitLSTM":
+    else:
         for p in tqdm(test_paths):
-            dataset = TorqueDataset(p, stride=1)
+            dataset = TorqueDataset(
+                p,
+                stride=1,
+                sequence_length=sequence_length,
+            )
             test_sets[p.stem] = dataset
 
         # LSTM uses hidden states
         batch_size = 1
-    else:
-        raise ValueError(f"Unknown model class: {model_cls}")
-    
+
     return test_sets, batch_size
 
 

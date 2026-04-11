@@ -15,7 +15,14 @@ from shaft_force_sensing.training.utils import (
 
 def predict_model(model: LitSequenceModel, save_dir: Path, data_root: Path) -> None:
     finetune = model.hparams.get("finetune", False)
-    test_sets, batch_size = prepare_test_dataset(data_root, model)
+    test_sets, batch_size = prepare_test_dataset(
+        data_root,
+        model._get_name(),
+        finetune=finetune,
+        ablations=model.hparams.get("ablations", None),
+        model_idx=model.hparams.get("model_idx", 0),
+        sequence_length=model.hparams.get("sequence_length", 100),
+    )
     test_loaders = {
         group: DataLoader(dset, batch_size=batch_size, shuffle=False)
         for group, dset in test_sets.items()
@@ -32,6 +39,7 @@ def predict_model(model: LitSequenceModel, save_dir: Path, data_root: Path) -> N
 
 if __name__ == "__main__":
     args = args_parser()
+    print(args)
     seed_everything(args["seed"])
 
     assert args["save_dir"] is not None, "--save_dir is required for prediction."

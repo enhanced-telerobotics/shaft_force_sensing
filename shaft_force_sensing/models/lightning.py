@@ -64,6 +64,13 @@ class LitSequenceModel(pl.LightningModule):
 
         self.finetune = finetune
 
+    def denormalize(self, x: torch.Tensor) -> torch.Tensor:
+        """Denormalize the input tensor using the registered mean and std."""
+        if hasattr(self, "data_mean") and hasattr(self, "data_std"):
+            return x * self.data_std + self.data_mean
+        else:
+            return x
+
     def setup(self, stage):
         if stage == "fit" and self.finetune:
             # Freeze backbone layers for fine-tuning, only train the head
@@ -102,6 +109,7 @@ class LitSequenceModel(pl.LightningModule):
         """Test step."""
         x, gt, mask = batch
         pred = self(x, mask)
+        pred = self.denormalize(pred)
 
         logger: SummaryWriter = self.logger.experiment
         batch_size = self.trainer.test_dataloaders.batch_size
