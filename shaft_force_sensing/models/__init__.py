@@ -3,6 +3,7 @@
 from .lightning import (
     LitSequenceModel,
     LitTransformer,
+    LitFCN,
     LitLTC,
     LitLSTM,
 )
@@ -10,6 +11,7 @@ from .lightning import (
 __all__ = [
     "LitSequenceModel",
     "LitTransformer",
+    "LitFCN",
     "LitLTC",
     "LitLSTM",
 ]

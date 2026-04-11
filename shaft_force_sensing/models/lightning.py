@@ -6,6 +6,7 @@ import pytorch_lightning as pl
 from torch.utils.tensorboard import SummaryWriter
 
 from .transformer import TransformerModel
+from .fcn import FCNModel
 from .ltc import LTCModel
 from .lstm import LSTMModel
 
@@ -164,6 +165,27 @@ class LitTransformer(LitSequenceModel):
             d_model=self.d_hidden,
             nhead=nhead,
             num_layers=num_layers,
+        )
+
+    def forward(self, x, mask=None):
+        return self.model(x, mask)
+
+
+class LitFCN(LitSequenceModel):
+    def __init__(
+        self,
+        num_layers=3,
+        dropout=0.1,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+
+        self.model = FCNModel(
+            d_input=self.d_input,
+            d_output=self.d_output,
+            d_hidden=self.d_hidden,
+            num_layers=num_layers,
+            dropout=dropout,
         )
 
     def forward(self, x, mask=None):

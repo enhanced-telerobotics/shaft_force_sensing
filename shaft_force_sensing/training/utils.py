@@ -26,6 +26,7 @@ def args_parser() -> dict:
     parser.add_argument("--model_type", type=str,
                         choices=[
                             "transformer",
+                            "fcn",
                             "ltc",
                             "lstm"], default="transformer")
     parser.add_argument("--teleop", action="store_true")

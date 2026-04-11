@@ -12,6 +12,7 @@ import shaft_force_sensing.models
 from shaft_force_sensing.models import (
     LitSequenceModel,
     LitTransformer,
+    LitFCN,
     LitLTC,
     LitLSTM,
 )
@@ -113,6 +114,15 @@ if __name__ == "__main__":
                 data_std=scaler.scale_.tolist(),
                 **args
             )
+        elif model_type == "fcn":
+            model = LitFCN(
+                d_input=train_set[0][0].shape[1],
+                d_output=train_set[0][1].shape[0],
+                d_hidden=args.get("hidden_size", 64),
+                data_mean=scaler.mean_.tolist(),
+                data_std=scaler.scale_.tolist(),
+                **args
+            )
         elif model_type == "ltc":
             model = LitLTC(
                 d_input=train_set[0][0].shape[1],
@@ -133,20 +143,18 @@ if __name__ == "__main__":
         model_dir = Path(model_dir)
         assert model_dir.is_dir(), f"Model directory is required for finetuning, but {model_dir} is not a valid directory."
 
-        if model_type == "transformer" or model_type == "ltc":
+        if model_type != 'lstm':
             model = load_model(
-                model_dir, 
+                model_dir,
                 data_mean=scaler.mean_.tolist(),
                 data_std=scaler.scale_.tolist(),
                 **args
             )
-        elif model_type == "lstm":
+        else:
             model = load_model(
-                model_dir, 
+                model_dir,
                 **args
             )
-        else:
-            raise ValueError(f"Unsupported model type: {model_type}")
 
 
     # Train the model
