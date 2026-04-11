@@ -80,7 +80,7 @@ if __name__ == "__main__":
     batch_size = args["batch_size"]
     max_epochs = args["max_epochs"]
     model_type = args["model_type"]
-    finetune = args.get("finetune", False)
+    transfer = args.get("transfer", False)
     save_dir = args["save_dir"]
     model_dir = args["model_dir"]
 
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     train_set, val_set, scaler = prepare_datasets(
         Path().cwd() / "data",
         model_type,
-        finetune=finetune,
+        transfer=transfer,
         ablations=args.get("ablations", None),
         model_idx=args.get("model_idx", 0),
         stride=args.get("stride", 5),
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
 
-    if not finetune:
+    if not transfer:
         # Initialize model based on specified type
         if model_type == "transformer" or model_type == "ltc":
             model = LitTransformer(

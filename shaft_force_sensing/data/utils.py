@@ -6,10 +6,10 @@ import json5
 def get_train_test(
         data_root: Path,
         model_cls: str = None,
-        finetune: bool = False,
+        transfer: bool = False,
         model_idx: int = 0
 ) -> Tuple[List[Path], List[Path]]:
-    if not finetune:
+    if not transfer:
         data_path = data_root / "Automated"
     else:
         data_path = data_root / "Teleop"
@@ -51,10 +51,10 @@ if __name__ == "__main__":
     data_root = Path("data")
     model_type = "LSTM"
     model_idx = 0
-    finetune = False
+    transfer = False
 
     train_paths, test_paths = get_train_test(
-        data_root, model_type, finetune, model_idx)
+        data_root, model_type, transfer, model_idx)
 
     print("Train paths:")
     for p in train_paths:
