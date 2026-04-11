@@ -14,11 +14,11 @@ from shaft_force_sensing.training.utils import (
 
 
 def predict_model(model: LitSequenceModel, save_dir: Path, data_root: Path) -> None:
-    transfer = model.hparams.get("transfer", False)
+    teleop = model.hparams.get("teleop", False)
     test_sets, batch_size = prepare_test_dataset(
         data_root,
         model._get_name(),
-        transfer=transfer,
+        teleop=teleop,
         ablations=model.hparams.get("ablations", None),
         model_idx=model.hparams.get("model_idx", 0),
         sequence_length=model.hparams.get("sequence_length", 100),
@@ -31,7 +31,7 @@ def predict_model(model: LitSequenceModel, save_dir: Path, data_root: Path) -> N
     for group, loader in test_loaders.items():
         logger = TensorBoardLogger(
             save_dir,
-            name="Automated" if not transfer else "Teleop",
+            name="Automated" if not teleop else "Teleop",
             version=group,
         )
         Trainer(logger=logger).test(model=model, dataloaders=loader)

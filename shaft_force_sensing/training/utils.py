@@ -28,7 +28,8 @@ def args_parser() -> dict:
                             "transformer",
                             "ltc",
                             "lstm"], default="transformer")
-    parser.add_argument("--transfer", action="store_true")
+    parser.add_argument("--teleop", action="store_true")
+    parser.add_argument("--finetune", action="store_true")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--weight_decay", type=float, default=1e-4)
@@ -70,7 +71,7 @@ def args_parser() -> dict:
 def prepare_datasets(
     data_root: str,
     model_cls: str,
-    transfer: bool = False,
+    teleop: bool = False,
     ablations: str = None,
     model_idx: int = 0,
     stride: int = 5,
@@ -80,7 +81,7 @@ def prepare_datasets(
     train_paths, _ = get_train_test(
         data_root,
         model_cls,
-        transfer,
+        teleop,
         model_idx
     )
 
@@ -139,7 +140,7 @@ def prepare_datasets(
 def prepare_test_dataset(
     data_root: str,
     model_cls: str,
-    transfer: bool = False,
+    teleop: bool = False,
     ablations: str = None,
     model_idx: int = 0,
     sequence_length: int = 100
@@ -151,7 +152,7 @@ def prepare_test_dataset(
     _, test_paths = get_train_test(
         data_root,
         model_cls,
-        transfer,
+        teleop,
         model_idx
     )
 
@@ -206,7 +207,7 @@ if __name__ == "__main__":
     train_set, val_set, scaler = prepare_datasets(
         Path().cwd() / "data",
         'transformer',
-        transfer=True,
+        teleop=True,
         ablations=None,
         model_idx=0,
         stride=1,

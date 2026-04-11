@@ -23,7 +23,7 @@ class LitSequenceModel(pl.LightningModule):
         lr_scheduler_min_lr=1e-6,
         data_mean:list=None,
         data_std:list=None,
-        transfer=False,
+        finetune=False,
         **kwargs
     ):
         """
@@ -38,6 +38,8 @@ class LitSequenceModel(pl.LightningModule):
                 If provided, registered as a buffer. Defaults to None.
             data_std (list, optional): Standard deviation values for dataset normalization. 
                 If provided, registered as a buffer. Defaults to None.
+            finetune (bool, optional): Whether the model is being fine-tuned. If True, will freeze backbone layers in setup(). Defaults to False.
+            **kwargs: Additional keyword arguments for derived classes (e.g., model-specific hyperparameters).
         """
         super().__init__()
         self.save_hyperparameters()
@@ -62,7 +64,7 @@ class LitSequenceModel(pl.LightningModule):
         if data_std is not None:
             self.register_buffer("data_std", torch.tensor(data_std))
 
-        self.transfer = transfer
+        self.finetune = finetune
 
     def denormalize(self, x: torch.Tensor) -> torch.Tensor:
         """Denormalize the input tensor using the registered mean and std."""
@@ -72,7 +74,7 @@ class LitSequenceModel(pl.LightningModule):
             return x
 
     def setup(self, stage):
-        if stage == "fit" and self.transfer:
+        if stage == "fit" and self.finetune:
             # Freeze backbone layers for fine-tuning, only train the head
             # The derived class should name the last linear layer as "head" for this to work
             # Otherwise, overload this method in the derived class

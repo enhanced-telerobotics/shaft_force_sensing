@@ -80,7 +80,8 @@ if __name__ == "__main__":
     batch_size = args["batch_size"]
     max_epochs = args["max_epochs"]
     model_type = args["model_type"]
-    transfer = args.get("transfer", False)
+    teleop = args.get("teleop", False)
+    finetune = args.get("finetune", False)
     save_dir = args["save_dir"]
     model_dir = args["model_dir"]
 
@@ -91,7 +92,7 @@ if __name__ == "__main__":
     train_set, val_set, scaler = prepare_datasets(
         Path().cwd() / "data",
         model_type,
-        transfer=transfer,
+        teleop=teleop,
         ablations=args.get("ablations", None),
         model_idx=args.get("model_idx", 0),
         stride=args.get("stride", 5),
@@ -101,7 +102,7 @@ if __name__ == "__main__":
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
 
-    if not transfer:
+    if not finetune:
         # Initialize model based on specified type
         if model_type == "transformer":
             model = LitTransformer(
@@ -130,14 +131,7 @@ if __name__ == "__main__":
             raise ValueError(f"Unsupported model type: {model_type}")
     else:
         model_dir = Path(model_dir)
-        assert model_dir.is_dir(), f"Model directory {model_dir} does not exist."
-
-        # Load model from checkpoint for fine-tuning
-        for p in model_dir.iterdir():
-            if p.name in shaft_force_sensing.models.__all__:
-                model_cls = p.name
-                break
-        assert model_cls is not None, "Model name not found in checkpoint directory."
+        assert model_dir.is_dir(), f"Model directory is required for finetuning, but {model_dir} is not a valid directory."
 
         if model_type == "transformer" or model_type == "ltc":
             model = load_model(
