@@ -101,12 +101,16 @@ def prepare_datasets(
 
         # Downsample more for free space data
         for p in tqdm(train_paths):
+            # Skip force data for free space to avoid imbalance
+            if 'F' in p.parent.name:
+                continue
+
             dataset = SensorDataset(
                 p,
                 input_cols,
                 target_cols,
                 # Use larger stride for free space data to balance the dataset
-                stride if p.parent.name != 'Free' else stride * 4,
+                stride if 'F' in p.parent.name else stride * 4,
                 sequence_length,
                 nomalizer=scaler)
             train_sets[p.parent.name].append(dataset)
