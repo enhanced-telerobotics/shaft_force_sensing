@@ -42,7 +42,26 @@ def get_cols(ablations: str) -> Tuple[List[str], List[str]]:
     ]
     t_cols = ['ati_fx', 'ati_fy', 'ati_fz']
 
-    # TODO: Add more ablation options
+    # Set ablation columns based on specified ablation type
+    if ablations is not None:
+        if 'no_hex10':
+            a_cols = ['tx', 'ty', 'tz', 'fx', 'fy', 'fz']
+        elif 'no_tau':
+            a_cols = ['*_effort']
+        elif 'no_vec':
+            a_cols = ['*_velocity']
+        elif 'no_pos':
+            a_cols = ['*_position']
+        elif 'no_pos_vec':
+            a_cols = ['*_position', '*_velocity']
+        else:
+            raise ValueError(f"Unsupported ablation type: {ablations}")
+    else:
+        a_cols = []
+
+    # Remove ablated columns from input column lists
+    i_cols = [col for col in i_cols if not any(
+        Path(col).match(a) for a in a_cols)]
 
     return i_cols, t_cols
 
@@ -62,3 +81,8 @@ if __name__ == "__main__":
     print("\nTest paths:")
     for p in test_paths:
         print(p)
+
+    ablations = input(
+        "Enter ablation type (e.g., 'no_hex10', 'no_tau', 'no_vec', 'no_pos', 'no_pos_vec', or None): ")
+    i_cols, _ = get_cols(ablations)
+    print(f"\nInput columns after ablation ({ablations}): {i_cols}")
