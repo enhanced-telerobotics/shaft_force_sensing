@@ -114,7 +114,11 @@ class LitSequenceModel(pl.LightningModule):
         pred = self(x, mask)
         pred = self.denormalize(pred)
 
-        logger: SummaryWriter = self.logger.experiment
+        logger = getattr(self, "logger", None)
+        if logger is None or not hasattr(logger, "experiment"):
+            return
+
+        logger: SummaryWriter = logger.experiment
         batch_size = self.trainer.test_dataloaders.batch_size
 
         for idx in range(pred.size(0)):
@@ -297,7 +301,11 @@ class LitLSTM(LitSequenceModel):
         assert pred_force.size(
             0) == 1, "Test batch size > 1 not supported for force logging."
 
-        logger: SummaryWriter = self.logger.experiment
+        logger = getattr(self, "logger", None)
+        if logger is None or not hasattr(logger, "experiment"):
+            return
+
+        logger: SummaryWriter = logger.experiment
 
         pred = pred_force.squeeze().detach().cpu().tolist()
         gt = force.squeeze().detach().cpu().tolist()
