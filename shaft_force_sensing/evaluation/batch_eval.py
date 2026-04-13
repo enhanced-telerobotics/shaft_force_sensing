@@ -69,10 +69,10 @@ def evaluate_run(run_dir: Path, force: bool = False) -> Tuple[Path, int]:
         gt, pred = tb_to_numpy(group_path)
 
         # Match post-processing used in notebooks/evaluation.ipynb.
-        pred = array_medfilt(pred, kernel_size=5)
+        pred = array_medfilt(pred)
 
         if teleop:
-            pred = array_bais(pred, 50)
+            pred = array_bais(pred)
 
         if "lstm" in model_cls.lower() and not teleop:
             pred[:, [0, 1]] = pred[:, [1, 0]]
