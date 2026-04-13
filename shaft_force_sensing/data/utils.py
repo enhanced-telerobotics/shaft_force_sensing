@@ -44,15 +44,15 @@ def get_cols(ablations: str) -> Tuple[List[str], List[str]]:
 
     # Set ablation columns based on specified ablation type
     if ablations is not None:
-        if 'no_hex10':
+        if ablations == 'no_hex10':
             a_cols = ['tx', 'ty', 'tz', 'fx', 'fy', 'fz']
-        elif 'no_tau':
+        elif ablations == 'no_tau':
             a_cols = ['*_effort']
-        elif 'no_vec':
+        elif ablations == 'no_vec':
             a_cols = ['*_velocity']
-        elif 'no_pos':
+        elif ablations == 'no_pos':
             a_cols = ['*_position']
-        elif 'no_pos_vec':
+        elif ablations == 'no_pos_vec':
             a_cols = ['*_position', '*_velocity']
         else:
             raise ValueError(f"Unsupported ablation type: {ablations}")
@@ -86,3 +86,4 @@ if __name__ == "__main__":
         "Enter ablation type (e.g., 'no_hex10', 'no_tau', 'no_vec', 'no_pos', 'no_pos_vec', or None): ")
     i_cols, _ = get_cols(ablations)
     print(f"\nInput columns after ablation ({ablations}): {i_cols}")
+    print(f"Total input columns after ablation: {len(i_cols)}")
