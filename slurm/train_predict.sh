@@ -3,10 +3,11 @@
 #SBATCH --job-name=force_sensing        # job name
 #SBATCH -p gpu                          # partition (queue)
 #SBATCH --gres=gpu:1                    # number of GPUs requested
-#SBATCH --constraint="[dgx|gpul40s]"
+#SBATCH --nodelist=gput[053-075]        # allowed node range
+#SBATCH --exclude=gput[054-056]         # excluded bad node
 #SBATCH -N 1                            # total number of nodes requested
 #SBATCH -c 4                            # total number of tasks (one for each core)
-#SBATCH --time=12:00:00                 # total run time limit (HH:MM:SS)
+#SBATCH --time=4:00:00                  # total run time limit (HH:MM:SS)
 #SBATCH --mem=20gb                      # memory required per node
 #SBATCH -o output/slurm-%j-%N.out       # STDOUT file
 #SBATCH -e output/slurm-%j-%N.err       # STDERR file

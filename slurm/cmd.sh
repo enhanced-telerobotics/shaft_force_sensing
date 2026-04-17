@@ -1,7 +1,7 @@
 # Baselines
-sbatch train_predict.sh --save_dir logs/transformer/base --lr 0.001 --batch_size 256 --hidden_size 64 --model_type transformer --max_epochs 50 --weight_decay 1e-4
-sbatch train_predict.sh --save_dir logs/lstm/base --lr 0.005 --batch_size 256 --hidden_size 128 --model_type lstm --max_epochs 500 --weight_decay 1e-7
-sbatch train_predict.sh --save_dir logs/fcn/base --model_type fcn --lr 1e-3 --weight_decay 1e-4  --stride 5 --sequence_length 1 --max_epochs 100
+sbatch train_predict.sh --save_dir logs/transformer/base --lr 1e-3 --batch_size 256 --hidden_size 64 --model_type transformer --weight_decay 1e-4 --max_epochs 50
+sbatch train_predict.sh --save_dir logs/lstm/base --lr 5e-3 --batch_size 256 --hidden_size 128 --model_type lstm --weight_decay 1e-7 --stride 2 --sequence_length 1000 --max_epochs 500
+sbatch train_predict.sh --save_dir logs/fcn/base --lr 1e-3  --batch_size 256 --model_type fcn --weight_decay 1e-4 --sequence_length 1 --max_epochs 100
 
 # Hyperparameter search
 sbatch train_predict.sh --save_dir logs/lstm/ft_lr1e-4_wd1e-7 --max_epochs 500 --lr 1e-4 --weight_decay 1e-7 --sequence_length 1000 --stride 1 --model_type lstm --model_dir logs/lstm/base --finetune
