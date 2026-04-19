@@ -68,14 +68,12 @@ def evaluate_run(run_dir: Path, force: bool = False) -> Tuple[Path, int]:
 
         gt, pred = tb_to_numpy(group_path)
 
-        # Match post-processing used in notebooks/evaluation.ipynb.
+        # Apply median filter to reduce noise
         pred = array_medfilt(pred)
 
-        if teleop:
+        # Only apply bias correction for non-LSTM teleop models
+        if "lstm" not in model_cls.lower() and teleop:
             pred = array_bais(pred)
-
-        if "lstm" in model_cls.lower() and not teleop:
-            pred[:, [0, 1]] = pred[:, [1, 0]]
 
         gt = add_norm(gt)
         pred = add_norm(pred)
