@@ -1,5 +1,5 @@
 # Baselines
-sbatch train_predict.sh --save_dir logs/transformer/base --lr 1e-3 --batch_size 256 --hidden_size 64 --model_type transformer --weight_decay 1e-4 --max_epochs 50
+sbatch train_predict.sh --save_dir logs/transformer/base --lr 1e-3 --batch_size 256 --hidden_size 64 --model_type transformer --weight_decay 1e-4 --max_epochs 100
 sbatch train_predict.sh --save_dir logs/lstm/base --lr 5e-3 --batch_size 256 --hidden_size 128 --model_type lstm --weight_decay 1e-7 --stride 2 --sequence_length 1000 --max_epochs 500
 sbatch train_predict.sh --save_dir logs/fcn/base --lr 1e-3  --batch_size 256 --model_type fcn --weight_decay 1e-4 --sequence_length 1 --max_epochs 100
 
@@ -10,9 +10,9 @@ sbatch train_predict.sh --save_dir logs/lstm/ft_lr1e-3_wd1e-6 --max_epochs 500 -
 
 # Finetune with best hyperparameters from base training (selected)
 # Transformer
-sbatch train_predict.sh --save_dir logs/transformer/ft_m0 --max_epochs 50 --model_idx 0 --model_type transformer --lr 1e-3 --weight_decay 1e-4  --stride 5 --teleop --finetune --model_dir logs/transformer/base
-sbatch train_predict.sh --save_dir logs/transformer/ft_m1 --max_epochs 50 --model_idx 1 --model_type transformer --lr 1e-3 --weight_decay 1e-4  --stride 5 --teleop --finetune --model_dir logs/transformer/base
-sbatch train_predict.sh --save_dir logs/transformer/ft_m2 --max_epochs 50 --model_idx 2 --model_type transformer --lr 1e-3 --weight_decay 1e-4  --stride 5 --teleop --finetune --model_dir logs/transformer/base
+sbatch train_predict.sh --save_dir logs/transformer/ft_m0 --max_epochs 100 --model_idx 0 --model_type transformer --lr 1e-3 --weight_decay 1e-4  --stride 5 --teleop --finetune --model_dir logs/transformer/base
+sbatch train_predict.sh --save_dir logs/transformer/ft_m1 --max_epochs 100 --model_idx 1 --model_type transformer --lr 1e-3 --weight_decay 1e-4  --stride 5 --teleop --finetune --model_dir logs/transformer/base
+sbatch train_predict.sh --save_dir logs/transformer/ft_m2 --max_epochs 100 --model_idx 2 --model_type transformer --lr 1e-3 --weight_decay 1e-4  --stride 5 --teleop --finetune --model_dir logs/transformer/base
 
 # LSTM
 sbatch train_predict.sh --save_dir logs/lstm/ft_m0 --max_epochs 200 --model_idx 0 --model_type lstm --lr 1e-4 --weight_decay 1e-6 --sequence_length 1000 --stride 2 --teleop --finetune --model_dir logs/lstm/base
