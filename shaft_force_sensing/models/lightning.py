@@ -262,10 +262,14 @@ class LitLSTM(LitSequenceModel):
 
     def training_step(self, batch, batch_idx):
         """Training step."""
-        pos, vec, tau, _, _, _ = batch
+        pos, vec, tau, force, jaco, rot = batch
         pred_tau, _ = self(pos, vec)
 
-        loss = self.loss_fn(pred_tau, tau)
+        # Calculate predicted force in the HEX10 frame
+        pred_force = self.calc_force(jaco, tau, pred_tau)
+        pred_force = torch.einsum("...ij,...j->...i", rot, pred_force)
+
+        loss = self.loss_fn(pred_force, force)
 
         self.log("train/loss", loss, prog_bar=True,
                  logger=True, on_epoch=True, on_step=False)
@@ -274,13 +278,13 @@ class LitLSTM(LitSequenceModel):
 
     def validation_step(self, batch, batch_idx):
         """Validation step."""
-        pos, vec, tau, force, jaco, _ = batch
+        pos, vec, tau, force, jaco, rot = batch
         pred_tau, _ = self(pos, vec)
 
+        # Calculate predicted force in the HEX10 frame
         pred_force = self.calc_force(jaco, tau, pred_tau)
+        pred_force = torch.einsum("...ij,...j->...i", rot, pred_force)
 
-        # Use for free space only
-        # Since predicted force in the base frame
         loss = self.loss_fn(pred_force, force)
 
         self.log("val/loss", loss, prog_bar=True,

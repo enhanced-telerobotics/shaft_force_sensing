@@ -25,10 +25,6 @@ def get_train_test(
     train_paths = [p for p in all_csv_paths if p.stem in train]
     test_paths = [p for p in all_csv_paths if p.stem in test]
 
-    if 'lstm' in model_cls.lower():
-        train_paths = [
-            p for p in train_paths if "F" in p.stem or "free" in p.stem]
-
     return sorted(train_paths), sorted(test_paths)
 
 def get_cols(ablations: str) -> Tuple[List[str], List[str]]:
