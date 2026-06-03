@@ -1,7 +1,7 @@
 # Shaft-integrated Force Sensing with Transformer-based Dynamics Compensation for Telesurgery
 
 [Project Page](https://enhanced-telerobotics.github.io/shaft_force_sensing/) | 
-[Paper](#) | 
+[Paper](https://ieeexplore.ieee.org/document/11547236) | 
 [Video](https://youtu.be/pcKunl9hvOI?si=YFEZaZ0H5BoHgDw0) | 
 [Dataset](https://cwru.box.com/s/s7ns53tls4gccrukbe41d9xkieuju32u)
 
@@ -145,14 +145,15 @@ python -m shaft_force_sensing.evaluation.batch_eval logs/transformer
 If you use this code for research, please cite:
 
 ```
-@misc{yang2026shaft,
-      title={Shaft-integrated Force Sensing with Transformer-based Dynamics Compensation for Telesurgery}, 
-      author={Shuyuan Yang and Grant Boone and Timo Markert and Sebastian Matich and Andreas Theissler and Martin Atzmueller and Zonghe Chua},
-      year={2026},
-      eprint={2605.31434},
-      archivePrefix={arXiv},
-      primaryClass={cs.RO},
-      url={https://arxiv.org/abs/2605.31434}, 
+@ARTICLE{yang2026shaft,
+  author={Yang, Shuyuan and Boone, Grant and Markert, Timo and Matich, Sebastian and Theissler, Andreas and Atzmueller, Martin and Chua, Zonghe},
+  journal={IEEE Transactions on Medical Robotics and Bionics}, 
+  title={Shaft-integrated Force Sensing with Transformer-based Dynamics Compensation for Telesurgery}, 
+  year={2026},
+  volume={},
+  number={},
+  pages={1-1},
+  doi={10.1109/TMRB.2026.3699214}
 }
 ```
 
