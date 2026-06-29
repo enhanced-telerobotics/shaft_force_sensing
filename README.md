@@ -3,7 +3,7 @@
 [Project Page](https://enhanced-telerobotics.github.io/shaft_force_sensing/) | 
 [Paper](https://ieeexplore.ieee.org/document/11547236) | 
 [Video](https://youtu.be/pcKunl9hvOI?si=YFEZaZ0H5BoHgDw0) | 
-[Dataset](https://cwru.box.com/s/s7ns53tls4gccrukbe41d9xkieuju32u)
+[Dataset](https://zenodo.org/records/21036880)
 
 
 ## Overview
@@ -38,7 +38,7 @@ pip install -e .
 Two options to obtain the dataset:
 
 ### Option 1 — Extract from raw bag files
-1. Download the raw ROS bag files from the [dataset](https://cwru.box.com/s/s7ns53tls4gccrukbe41d9xkieuju32u).
+1. Download the raw ROS bag files from the [dataset](https://zenodo.org/records/21036880).
 2. Use the extraction tools (https://github.com/enhanced-telerobotics/dvrk_bag_extraction/tree/force_data) to convert bags into the repo format. Example:
 
 ```bash
@@ -51,7 +51,7 @@ python extract.py --bag 'Teleop_compressed/*' --out ./data/Teleop
 Note: large raw image messages are excluded; compressed reference videos are provided instead. Contact the authors for access to original raw images if needed.
 
 ### Option 2 — Download extracted dataset
-Download the pre-extracted [dataset](https://cwru.app.box.com/s/s7ns53tls4gccrukbe41d9xkieuju32u/file/2248909387081) and unpack to reproduce the following structure:
+Download the pre-extracted [dataset](https://zenodo.org/records/21036880/files/data.tar.gz) and unpack to reproduce the following structure:
 
 ```
 data/
