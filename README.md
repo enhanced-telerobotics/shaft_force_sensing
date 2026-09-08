@@ -148,11 +148,12 @@ If you use this code for research, please cite:
 @ARTICLE{yang2026shaft,
   author={Yang, Shuyuan and Boone, Grant and Markert, Timo and Matich, Sebastian and Theissler, Andreas and Atzmueller, Martin and Chua, Zonghe},
   journal={IEEE Transactions on Medical Robotics and Bionics}, 
-  title={Shaft-integrated Force Sensing with Transformer-based Dynamics Compensation for Telesurgery}, 
+  title={Shaft-Integrated Force Sensing with Transformer-Based Dynamics Compensation for Telesurgery},
   year={2026},
-  volume={},
-  number={},
-  pages={1-1},
+  volume={8},
+  number={3},
+  pages={970-981},
+  keywords={End effectors;Image sensors;Estimation;Mechanical cables;Medical robotics;Telerobotics;Deep learning;Force sensing;telerobotics;telesurgery;deep learning},
   doi={10.1109/TMRB.2026.3699214}
 }
 ```
@@ -164,4 +165,3 @@ The LSTM torque compensation baseline was adopted from [An Effectiveness Study A
 
 ## Contact
 For dataset access, questions, or collaboration please open an issue.
-
